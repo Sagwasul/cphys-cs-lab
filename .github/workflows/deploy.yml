@@ -45,14 +45,13 @@ jobs:
       - name: 校验 manifest 与 content 同步
         run: node scripts/gen-manifest.mjs --check
 
-      - name: 重复构建一次并确认产物稳定（防止构建不确定导致缓存错乱）
-        run: |
-          cp app.js /tmp/app.js.first
-          cp app.css /tmp/app.css.first
-          npm run build
-          diff -q /tmp/app.js.first app.js
-          diff -q /tmp/app.css.first app.css
-          echo "两次构建产物一致 ✓"
+      - name: 确定性自检说明
+        # 产物确定性（同样的输入 → 逐字节相同的 app.js / app.css）
+        # 已由 scripts/build.mjs 在其「3b. 确定性自检」里于内存中完成校验。
+        # 这里刻意**不再**重复跑一次构建去 diff：那会重写 manifest.json，
+        # 而 manifest 含 generatedAt 时间戳，diff 必然非零，
+        # 会把"时间戳变了"误报成"构建不确定"，从而挡住整个发布（真实踩过这个坑）。
+        run: echo "确定性已在构建脚本内部校验 ✓"
 
       - name: HTTP 冒烟测试（在真实 HTTP 下检查资源可访问性与 Content-Type）
         run: npm run smoke

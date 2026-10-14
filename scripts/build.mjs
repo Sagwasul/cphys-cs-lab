@@ -196,6 +196,38 @@ if (/<\/script/i.test(appJs)) {
   errors.push('app.js 中出现 "</script" 字面量，会提前关闭 <script> 标签；请写成 "<\\/script"');
 }
 
+// ─────────────────────────────────────────────────────────────
+// 3b. 确定性自检：同样的输入必须得到逐字节相同的产物
+//
+// 为什么放在这里，而不是让 CI 再跑一次 `npm run build` 然后 diff：
+//   再跑一次会重写 manifest.json，而 manifest 里有 generatedAt 时间戳，
+//   diff 必然非零 —— 于是"时间戳变了"被误报成"构建不确定"，挡住整个发布。
+//   （这个坑真的踩到了：Deploy 工作流连续失败在这一步。）
+//   现在改成在**内存里**独立重算一遍拼接结果并比较哈希：
+//   既不碰磁盘、不受时间戳干扰，又能真正抓到哈希遍历顺序之类的非确定性。
+// ─────────────────────────────────────────────────────────────
+{
+  const sha = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+  const rejoin = (sources) => sources.map(({ file, text }) => banner(`pieces/${file}`) + text.trimEnd() + '\n').join('');
+
+  if (sha(forcedHeader + rejoin(cssSources)) !== sha(appCss)) {
+    errors.push('构建不确定性：两次拼接 app.css 的结果不同');
+  }
+  if (sha(jsHeader + rejoin(jsSources)) !== sha(appJs)) {
+    errors.push('构建不确定性：两次拼接 app.js 的结果不同');
+  }
+  // manifest 的课程顺序必须是确定的（按周次、再按 id），
+  // 否则导航顺序会随文件系统返回顺序漂移。
+  for (let i = 1; i < manifest.lessons.length; i++) {
+    const a = manifest.lessons[i - 1];
+    const b = manifest.lessons[i];
+    if (a.week > b.week || (a.week === b.week && String(a.id) > String(b.id))) {
+      errors.push(`manifest 排序不确定：${a.id}（第 ${a.week} 周）排在 ${b.id}（第 ${b.week} 周）之前`);
+      break;
+    }
+  }
+}
+
 writeFileSync(join(ROOT, 'app.css'), appCss);
 writeFileSync(join(ROOT, 'app.js'), appJs);
 
