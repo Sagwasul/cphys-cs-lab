@@ -1,0 +1,25 @@
+{
+  "name": "cphys-cs-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "计算物理 × 计算机科学 AI 互动学习平台 — 纯静态，部署于 GitHub Pages；AI 助教走 Serverless 代理，密钥永不进入前端。",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "manifest": "node scripts/gen-manifest.mjs",
+    "test": "node tests/run.mjs",
+    "test:core": "node tests/run.mjs tests/core",
+    "test:content": "node tests/run.mjs tests/content",
+    "test:security": "node tests/run.mjs tests/security",
+    "smoke": "node scripts/smoke.mjs",
+    "verify:python": "node scripts/verify-python.mjs",
+    "serve": "node scripts/serve.mjs",
+    "verify": "npm run build && npm test && npm run smoke"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

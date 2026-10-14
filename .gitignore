@@ -1,0 +1,35 @@
+# === å¯†é’¥ä¸æœ¬åœ°é…ç½®ï¼šç»ä¸èƒ½æäº¤ ===
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.vercel
+.wrangler
+dsh-dev/
+
+# === ä¾èµ–ä¸æ„å»ºç¼“å­˜ ===
+node_modules/
+.npm/
+.cache/
+
+# === æ—¥å¿—ä¸ä¸´æ—¶æ–‡ä»¶ ===
+*.log
+npm-debug.log*
+*.tmp
+tmp/
+
+# === ç¼–è¾‘å™¨ä¸ç³»ç»Ÿ ===
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === æœ¬åœ°é¢„è§ˆäº§ç‰© ===
+.preview/
+
+# === ¹¹½¨ÆÚ×Ô¶¯Éú³ÉµÄÄÚÇ¶¿ìÕÕ£¨ÓÉ npm run build ¸²¸ÇĞ´Èë£© ===
+pieces/07-manifest.snapshot.js
+pieces/07-syllabus.snapshot.js

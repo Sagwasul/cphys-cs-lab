@@ -1,0 +1,90 @@
+# 构建站点并发布到 GitHub Pages（每次推送到 main 触发）。
+#
+# 为什么用 Actions 而不是"直接发布分支目录"：
+#   站点产物（app.js / app.css / manifest.json）由 pieces/ 拼接而成，
+#   必须在发布前重新构建，否则会出现"源码改了、线上没变"。
+#
+# 关于 base 路径：app.js / app.css / manifest.json / content/ 全部用相对路径引用，
+# 因此本工作流同时适用于
+#   · 用户/组织主页   https://<user>.github.io/
+#   · 项目子路径      https://<user>.github.io/<repo>/
+# 不需要额外配置 base。
+
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 构建站点（拼接 pieces + 生成 manifest + 密钥扫描）
+        run: npm run build
+
+      - name: 运行全部测试（含大纲完整性与安全测试）
+        run: npm test
+
+      - name: Python 语义验证（用真实 CPython 跑每课的参考解与起始代码）
+        run: npm run verify:python
+
+      - name: 校验 manifest 与 content 同步
+        run: node scripts/gen-manifest.mjs --check
+
+      - name: 重复构建一次并确认产物稳定（防止构建不确定导致缓存错乱）
+        run: |
+          cp app.js /tmp/app.js.first
+          cp app.css /tmp/app.css.first
+          npm run build
+          diff -q /tmp/app.js.first app.js
+          diff -q /tmp/app.css.first app.css
+          echo "两次构建产物一致 ✓"
+
+      - name: HTTP 冒烟测试（在真实 HTTP 下检查资源可访问性与 Content-Type）
+        run: npm run smoke
+
+      - name: 打包发布目录（只放产物，不发布源码）
+        run: |
+          mkdir -p dist
+          cp index.html app.js app.css manifest.json dist/
+          cp -r content dist/
+          touch dist/.nojekyll
+          ls -la dist
+          echo "--- 发布目录内容 ---"
+          find dist -type f | sort | head -60
+
+      - name: 对发布目录再跑一次冒烟测试
+        run: node scripts/smoke.mjs dist
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

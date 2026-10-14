@@ -1,0 +1,414 @@
+/* ============================================================================
+ * 30-assess.css — 诊断测评、技能清单、学习路径
+ * ==========================================================================*/
+
+.cpl-assess__intro {
+  display: grid;
+  gap: var(--cpl-space-4);
+}
+
+.cpl-assess__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--cpl-space-2);
+  margin-top: var(--cpl-space-4);
+}
+
+.cpl-assess__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--cpl-space-3);
+  margin-bottom: var(--cpl-space-5);
+}
+
+.cpl-muted {
+  color: var(--cpl-text-mute);
+  font-size: var(--cpl-fs-sm);
+}
+
+.cpl-mono {
+  font-family: var(--cpl-font-mono);
+  font-size: var(--cpl-fs-xs);
+}
+
+/* ── 答题界面 ───────────────────────────────────────────────── */
+.cpl-quiz__progress {
+  height: 4px;
+  margin: 0 0 var(--cpl-space-4);
+  border-radius: var(--cpl-radius-pill);
+  background: var(--cpl-bg-sunken);
+  overflow: hidden;
+}
+
+.cpl-quiz__progress > span {
+  display: block;
+  height: 100%;
+  background: var(--cpl-accent);
+  transition: width 0.25s ease;
+}
+
+.cpl-quiz {
+  max-width: 76ch;
+  padding: var(--cpl-space-5);
+  border: 1px solid var(--cpl-border);
+  border-radius: var(--cpl-radius-lg);
+  background: var(--cpl-bg-elev);
+  box-shadow: var(--cpl-shadow-sm);
+}
+
+.cpl-quiz__skill {
+  margin-bottom: var(--cpl-space-2);
+  font-size: var(--cpl-fs-xs);
+  font-weight: 650;
+  color: var(--cpl-accent-text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cpl-quiz__q {
+  margin-bottom: var(--cpl-space-4);
+  font-size: var(--cpl-fs-lg);
+  line-height: 1.5;
+}
+
+.cpl-quiz__options {
+  display: grid;
+  gap: var(--cpl-space-2);
+}
+
+.cpl-quiz__option {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--cpl-space-3);
+  align-items: start;
+  width: 100%;
+  padding: var(--cpl-space-3);
+  border: 1px solid var(--cpl-border-strong);
+  border-radius: var(--cpl-radius);
+  background: var(--cpl-bg-elev);
+  color: var(--cpl-text);
+  text-align: left;
+  font-size: var(--cpl-fs-base);
+  line-height: 1.5;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.cpl-quiz__option:hover:not([disabled]) {
+  border-color: var(--cpl-accent);
+  background: var(--cpl-accent-soft);
+}
+
+.cpl-quiz__option[disabled] {
+  cursor: default;
+}
+
+.cpl-quiz__key {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cpl-bg-sunken);
+  font-size: var(--cpl-fs-sm);
+  font-weight: 700;
+}
+
+.cpl-quiz__option.is-correct {
+  border-color: var(--cpl-ok);
+  background: var(--cpl-ok-soft);
+}
+
+.cpl-quiz__option.is-correct .cpl-quiz__key {
+  background: var(--cpl-ok);
+  color: #fff;
+}
+
+.cpl-quiz__option.is-wrong {
+  border-color: var(--cpl-danger);
+  background: var(--cpl-danger-soft);
+}
+
+.cpl-quiz__option.is-wrong .cpl-quiz__key {
+  background: var(--cpl-danger);
+  color: #fff;
+}
+
+.cpl-quiz__feedback {
+  margin-top: var(--cpl-space-4);
+  padding: var(--cpl-space-4);
+  border: 1px solid var(--cpl-border);
+  border-left-width: 4px;
+  border-radius: var(--cpl-radius);
+}
+
+.cpl-quiz__feedback.is-correct {
+  border-left-color: var(--cpl-ok);
+  background: var(--cpl-ok-soft);
+}
+
+.cpl-quiz__feedback.is-wrong {
+  border-left-color: var(--cpl-danger);
+  background: var(--cpl-danger-soft);
+}
+
+.cpl-quiz__verdict {
+  font-weight: 700;
+  margin-bottom: var(--cpl-space-2);
+}
+
+.cpl-quiz__explain {
+  color: var(--cpl-text-soft);
+  line-height: var(--cpl-lh-loose);
+}
+
+.cpl-quiz__actions {
+  margin-top: var(--cpl-space-4);
+}
+
+.cpl-quiz__kbd-hint {
+  margin: var(--cpl-space-3) 0 0;
+}
+
+/* ── 技能清单表 ─────────────────────────────────────────────── */
+.cpl-skilltable {
+  margin-bottom: var(--cpl-space-5);
+}
+
+.cpl-skilldomain {
+  margin-top: var(--cpl-space-5);
+}
+
+.cpl-skilldomain__title {
+  display: flex;
+  align-items: center;
+  gap: var(--cpl-space-3);
+  padding-bottom: var(--cpl-space-2);
+  border-bottom: 1px solid var(--cpl-border);
+  font-size: var(--cpl-fs-md);
+}
+
+.cpl-skill {
+  border-bottom: 1px solid var(--cpl-border);
+}
+
+.cpl-skill__summary {
+  display: grid;
+  grid-template-columns: 72px 1fr auto auto;
+  gap: var(--cpl-space-3);
+  align-items: center;
+  padding: var(--cpl-space-3) var(--cpl-space-2);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--cpl-fs-sm);
+}
+
+.cpl-skill__summary::-webkit-details-marker {
+  display: none;
+}
+
+.cpl-skill__summary:hover {
+  background: var(--cpl-bg-sunken);
+}
+
+.cpl-skill__badge {
+  display: inline-flex;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: var(--cpl-radius-sm);
+  font-size: 11px;
+  font-weight: 650;
+  background: var(--cpl-bg-sunken);
+  color: var(--cpl-text-soft);
+}
+
+.cpl-skill__badge--strong {
+  background: var(--cpl-ok-soft);
+  color: var(--cpl-ok);
+}
+.cpl-skill__badge--ok {
+  background: var(--cpl-accent-soft);
+  color: var(--cpl-accent-text);
+}
+.cpl-skill__badge--weak {
+  background: var(--cpl-danger-soft);
+  color: var(--cpl-danger);
+}
+.cpl-skill__badge--unknown {
+  background: var(--cpl-warn-soft);
+  color: var(--cpl-warn);
+}
+
+.cpl-skill__name {
+  font-weight: 600;
+}
+
+.cpl-skill__kind {
+  color: var(--cpl-text-mute);
+  font-size: var(--cpl-fs-xs);
+  white-space: nowrap;
+}
+
+.cpl-skill__score {
+  font-family: var(--cpl-font-mono);
+  font-size: var(--cpl-fs-xs);
+  color: var(--cpl-text-soft);
+}
+
+.cpl-skill__body {
+  padding: 0 var(--cpl-space-3) var(--cpl-space-4) calc(72px + var(--cpl-space-3));
+  font-size: var(--cpl-fs-sm);
+  color: var(--cpl-text-soft);
+}
+
+.cpl-skill__body h4 {
+  margin: var(--cpl-space-3) 0 var(--cpl-space-1);
+  font-size: var(--cpl-fs-sm);
+  color: var(--cpl-text);
+}
+
+.cpl-skill__lessons a {
+  margin-right: var(--cpl-space-2);
+}
+
+/* ── 学习路径列表 ───────────────────────────────────────────── */
+.cpl-pathlist {
+  margin: var(--cpl-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: pathidx;
+}
+
+.cpl-pathlist__item {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: var(--cpl-space-3);
+  align-items: start;
+  padding: var(--cpl-space-3) var(--cpl-space-2);
+  border-bottom: 1px solid var(--cpl-border);
+}
+
+.cpl-pathlist__item.is-focus {
+  border-left: 3px solid var(--cpl-danger);
+  padding-left: var(--cpl-space-3);
+}
+
+.cpl-pathlist__item.is-skip {
+  opacity: 0.6;
+  border-left: 3px solid var(--cpl-ok);
+  padding-left: var(--cpl-space-3);
+}
+
+.cpl-pathlist__week {
+  font-family: var(--cpl-font-mono);
+  font-size: var(--cpl-fs-xs);
+  color: var(--cpl-text-mute);
+  padding-top: 2px;
+}
+
+.cpl-pathlist__link {
+  font-weight: 600;
+  font-size: var(--cpl-fs-base);
+}
+
+.cpl-pathlist__reason {
+  margin: 2px 0 0;
+  font-size: var(--cpl-fs-sm);
+  color: var(--cpl-text-mute);
+}
+
+/* ── 首页「你的下一步」与进度条 ─────────────────────────────── */
+.cpl-nextstep__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--cpl-space-3);
+}
+
+.cpl-nextstep__lesson {
+  font-size: var(--cpl-fs-md);
+  font-weight: 650;
+  margin-bottom: var(--cpl-space-1);
+}
+
+.cpl-meter {
+  display: grid;
+  grid-template-columns: 8.5em 1fr 3em;
+  gap: var(--cpl-space-2);
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: var(--cpl-fs-xs);
+}
+
+.cpl-meter__label {
+  color: var(--cpl-text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cpl-meter__track {
+  height: 6px;
+  border-radius: var(--cpl-radius-pill);
+  background: var(--cpl-bg-sunken);
+  overflow: hidden;
+}
+
+.cpl-meter__fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cpl-accent), color-mix(in srgb, var(--cpl-accent) 60%, #22c1c3));
+}
+
+.cpl-meter__value {
+  text-align: right;
+  font-family: var(--cpl-font-mono);
+  color: var(--cpl-text-mute);
+}
+
+/* ── 首次使用欢迎弹窗 ───────────────────────────────────────── */
+.cpl-welcome__steps {
+  display: grid;
+  gap: var(--cpl-space-3);
+  margin: var(--cpl-space-4) 0;
+}
+
+.cpl-welcome__step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--cpl-space-3);
+  align-items: start;
+  font-size: var(--cpl-fs-sm);
+  color: var(--cpl-text-soft);
+}
+
+.cpl-welcome__step strong {
+  color: var(--cpl-text);
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .cpl-skill__summary {
+    grid-template-columns: 68px 1fr auto;
+  }
+
+  .cpl-skill__kind {
+    display: none;
+  }
+
+  .cpl-skill__body {
+    padding-left: var(--cpl-space-2);
+  }
+
+  .cpl-quiz {
+    padding: var(--cpl-space-4);
+  }
+
+  .cpl-pathlist__item {
+    grid-template-columns: 34px 1fr;
+  }
+
+  .cpl-pathlist__item > .cpl-pill {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

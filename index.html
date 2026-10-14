@@ -1,0 +1,139 @@
+<!doctype html>
+<html
+  lang="zh-CN"
+  data-cpl-theme="auto"
+  data-cpl-theme-pref="auto"
+  data-cpl-script-hash="sha256-5+Dhg8TayY5VXy/BaDac51Cdl5F4pghoE8zkj0YlZJ8="
+  data-cpl-style-hash="sha256-Vp0pwrTDuoZwFq1vgz5hjJC/IJtkaXOXDayy3durzHU="
+  data-cpl-build="2026-10-14T15:38:42.402Z"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f8fa" />
+    <meta name="color-scheme" content="light dark" />
+
+    <title>计算物理 × 计算机科学 · 互动学习平台</title>
+    <meta
+      name="description"
+      content="27 周计算物理与计算机科学互动课程：概念内化、工具速查、Fortran 编程、项目知识整理、数据结构与算法、系统设计、并发与性能。纯静态站点，学习数据保存在本地浏览器。"
+    />
+    <meta name="author" content="cphys-cs-lab" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- 社交分享（无追踪，不使用第三方脚本） -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="计算物理 × 计算机科学 · 互动学习平台" />
+    <meta
+      property="og:description"
+      content="概念必须内化，工具知道存在、会查即可，忘记不是归零是存档。27 周互动课程 + 浏览器内代码练习 + AI 引导式助教。"
+    />
+    <meta name="twitter:card" content="summary" />
+
+    <!--
+      内容安全策略（CSP）。
+      这是"纵深防御"的一层，即使某处漏了转义，也不让注入脚本执行。
+      说明：
+        · script-src 允许 'unsafe-inline'，因为课程内容是运行时注入的经典脚本；
+          真正的 XSS 防护在前端渲染层（见 pieces/20-markdown.js 的转义设计）。
+        · connect-src 里的 https: 是为了让 AI 代理可以部署在任意 Vercel 域名下；
+          若你有固定域名，请把它替换成具体域名，收紧到最小集合。
+        · 若你在设置里关闭了"第三方 CDN"，可以删掉 jsdelivr / esm.sh 两项。
+
+      注意：这个 meta 版本在部分浏览器（尤其旧版 Safari）支持不完整。
+      生产环境建议改由托管方发送同名 HTTP 头；GitHub Pages 无法自定义响应头，
+      这也是本平台把"渲染层转义"作为主要防护手段的原因。
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://cdn.jsdelivr.net https://esm.sh;
+        style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
+        font-src 'self' data: https://cdn.jsdelivr.net;
+        img-src 'self' data: blob: https:;
+        connect-src 'self' https: blob:;
+        worker-src 'self' blob:;
+        frame-src 'none';
+        object-src 'none';
+        base-uri 'none';
+        form-action 'none';
+        upgrade-insecure-requests;
+      "
+    />
+
+    <!-- 内联配置：只允许出现公开信息。API 密钥永远不进这里。 -->
+    <script>
+      window.CPL_CONFIG = {
+        // AI 助教代理地址（Vercel Functions）。
+        // 留空 → AI 助教自动进入离线模式，只显示本地引导问题库，不会报错。
+        // 部署后把下面这行换成你的 Vercel 项目地址，例如：
+        //   apiBase: 'https://cphys-cs-lab.vercel.app/api/chat',
+        apiBase: '',
+        siteName: '计算物理 × 计算机科学',
+        siteSubtitle: '概念内化 · 工具速查 · 抗遗忘',
+        // 是否允许按需加载 Pyodide / KaTeX / CodeMirror（可从第三方 CDN）。
+        // 设为 false 则完全离线，但浏览器内 Python 执行将不可用。
+        allowCdn: true,
+        repoUrl: '',
+      };
+    </script>
+
+    <!-- 在样表加载前先定主题，避免深色用户看到白屏闪一下 -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('cpl.v1.pref.values');
+          var pref = raw ? (JSON.parse(raw).theme || 'auto') : 'auto';
+          var dark = pref === 'dark' || (pref === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.cplTheme = dark ? 'dark' : 'light';
+          document.documentElement.dataset.cplThemePref = pref;
+          var reduced = raw ? JSON.parse(raw).reducedMotion : false;
+          if (reduced || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+            document.documentElement.dataset.cplMotion = 'reduced';
+          }
+        } catch (e) {
+          document.documentElement.dataset.cplTheme = 'light';
+        }
+      })();
+    </script>
+
+    <noscript>
+      <style>
+        .cpl-noscript {
+          max-width: 46rem;
+          margin: 4rem auto;
+          padding: 1.5rem;
+          border: 1px solid #dfe3e9;
+          border-radius: 10px;
+          font-family: system-ui, sans-serif;
+          line-height: 1.7;
+        }
+      </style>
+    </noscript>
+
+    <!-- CPL:INJECT -->
+    <!-- 由 npm run build 生成；请勿手改。改 pieces/ 后重新构建。 -->
+    <link rel="stylesheet" href="./app.css?v=Vp0pwrTD" />
+    <script src="./app.js?v=5+Dhg8Ta" defer></script>
+    <!-- /CPL:INJECT -->
+  </head>
+
+  <body>
+    <noscript>
+      <div class="cpl-noscript">
+        <h1>需要启用 JavaScript</h1>
+        <p>
+          本平台是纯前端应用：课程导航、交互式 demo、代码练习与自动测试都在你的浏览器里运行。
+          没有 JavaScript 时无法渲染。
+        </p>
+        <p>
+          课程内容本身是普通的 JavaScript 数据文件，位于仓库的 <code>content/</code> 目录，
+          你可以在 GitHub 上直接阅读 Markdown 源码，或 clone 到本地后离线查看。
+        </p>
+      </div>
+    </noscript>
+
+    <!-- app.js 由构建脚本注入到 <head>，带 defer，因此这里不再重复引用 -->
+  </body>
+</html>

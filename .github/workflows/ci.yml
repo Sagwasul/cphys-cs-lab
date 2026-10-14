@@ -1,0 +1,83 @@
+# 持续集成：每个 PR / push 都要证明"能构建、测试全绿、没有密钥入库"。
+#
+# 三条硬门槛（任何一条失败即 PR 不能合并）：
+#   1. 构建通过 —— 含课程内容契约校验与密钥泄露扫描（由 scripts/build.mjs 执行）
+#   2. 测试通过 —— 含大纲完整性（每课必须有 demo/练习/测试/引导问题/卡片）与安全测试
+#   3. 独立密钥扫描 —— 即使构建脚本被人绕过，这一层也会拦住
+
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**', 'fix/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 构建（含内容契约与密钥扫描）
+        run: npm run build
+
+      - name: 测试
+        run: npm test
+
+      - name: Python 语义验证（用真实 CPython 跑每课的参考解与起始代码）
+        run: npm run verify:python
+
+      - name: HTTP 冒烟测试
+        run: npm run smoke
+
+      - name: manifest 与 content 是否同步
+        run: node scripts/gen-manifest.mjs --check
+
+      - name: 独立密钥扫描（仓库全量，含历史未跟踪文件）
+        run: |
+          set -e
+          echo "扫描常见密钥形态…"
+          PATTERNS='sk-[A-Za-z0-9_-]{16,}|sk-ant-[A-Za-z0-9_-]{16,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}'
+          if grep -rInE "$PATTERNS" \
+              --exclude-dir=node_modules \
+              --exclude-dir=.git \
+              --exclude-dir=dist \
+              --exclude='*.example' \
+              . ; then
+            echo "::error::检测到疑似密钥字面量，禁止提交。请立即吊销并轮换该密钥。"
+            exit 1
+          fi
+          echo "未发现密钥字面量 ✓"
+
+      - name: 确认 .env 没有被提交
+        run: |
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo "::error::.env 被提交进了仓库，必须移除并轮换其中所有密钥。"
+            exit 1
+          fi
+          echo ".env 未被跟踪 ✓"
+
+      - name: 确认前端产物里没有环境变量引用
+        run: |
+          if grep -nE 'process\.env\.(AI_API_KEY|UPSTASH|.*TOKEN|.*SECRET)' app.js ; then
+            echo "::error::前端产物里引用了服务端环境变量，这会把密钥暴露到浏览器。"
+            exit 1
+          fi
+          echo "前端产物不含服务端环境变量 ✓"
+
+      - name: 大文件检查（避免误提交 Pyodide 等大体积依赖）
+        run: |
+          BIG=$(find . -type f -not -path './.git/*' -not -path './node_modules/*' -size +2M -print)
+          if [ -n "$BIG" ]; then
+            echo "::warning::发现大于 2 MB 的文件（请确认是否应该入库）："
+            echo "$BIG"
+          fi
+          echo "大文件检查完成"

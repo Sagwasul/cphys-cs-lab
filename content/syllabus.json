@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "title": "计算物理 × 计算机科学 · 互动学习平台",
+  "weeks": 27,
+  "philosophy": {
+    "concept": "概念性知识必须内化：复杂度、内存模型、数值误差、稳定性、收敛阶、并行范式、边界条件、调试方法。判据是能自己推回来。",
+    "tool": "工具性细节知道存在、会查即可：API、语法、库函数、编译参数。判据是 30 秒能查到。",
+    "antiForgetting": "忘记不是归零，是存档：项目锚点 + 代码库 + Anki 间隔重复 + 费曼输出。"
+  },
+  "modules": [
+    {
+      "id": 1,
+      "title": "概念性知识内化",
+      "weeks": [1, 4],
+      "summary": "把四类必须内化的概念——计算复杂度与内存模型、浮点误差与稳定性、收敛阶与边界条件、并行范式与调试——用你自己的科研代码练到手。",
+      "outcome": "一份「概念卡片」，每张卡都用一具体科研代码片段举例。"
+    },
+    {
+      "id": 2,
+      "title": "工具性细节速查",
+      "weeks": [1, 27],
+      "summary": "每天 15 分钟：Python 科学计算、C++ 阅读、现代 Fortran 语法、工具链（Linux/Git/venv/pytest/cProfile/Makefile/CMake）、AI 辅助的正确用法。",
+      "outcome": "一份可检索的个人速查库；每节课附「查文档挑战」。"
+    },
+    {
+      "id": 3,
+      "title": "Fortran 计算物理编程",
+      "weeks": [5, 7],
+      "summary": "现代 Fortran 与 legacy 代码的阅读、修改、性能优化；数组语义、BLAS/LAPACK 调用、列主序内存布局、OpenMP/MPI/Coarray、与 C/Python 互操作。",
+      "outcome": "能读懂并改造一段真实的计算物理 Fortran 代码，并能解释其性能特征。"
+    },
+    {
+      "id": 4,
+      "title": "计算物理项目知识整理",
+      "weeks": [8, 10],
+      "summary": "把每个科研项目（PRB/CPC 类工作）整理成 7 问知识文档：物理问题、数值方法取舍、代码架构与数据流、最大 bug 的定位过程、性能瓶颈与优化、正确性验证、如果重做会改什么。",
+      "outcome": "每个项目一页可导出的知识整理文档。"
+    },
+    {
+      "id": 5,
+      "title": "计算机科学核心知识",
+      "weeks": [11, 19],
+      "summary": "CIU 式清单推进：复杂度与基础数据结构 → 链表栈队列递归 → 树堆 Trie 并查集 → 排序二分分治回溯贪心 → DP 与图 → 系统设计 I/II → OS/网络/数据库 → 并发与性能。",
+      "outcome": "每个主题一个交互式 demo、一组练习题、一套 Anki 卡片。"
+    },
+    {
+      "id": 6,
+      "title": "系统抗遗忘",
+      "weeks": [1, 27],
+      "summary": "把细节挂在项目锚点上，建立自己的 snippets 与笔记库，每周 10 分钟间隔重复，用费曼输出检验真正掌握。",
+      "outcome": "可持续运转的复习机制：每周自动生成 5 张基于本周代码与错题的 Anki 卡。"
+    },
+    {
+      "id": 7,
+      "title": "用户自定义学习内容",
+      "weeks": [1, 27],
+      "summary": "在浏览器里创建、编辑、保存、导出、导入你自己的知识卡片与课程模块；内容存在本机（localStorage/IndexedDB），也可按模板贡献到仓库。",
+      "outcome": "你自己的课程出现在课表里，可编辑、删除、排序，并可一键备份为 JSON。"
+    }
+  ],
+  "lessonStructure": [
+    { "key": "objectives", "label": "学习目标", "desc": "学完能做什么，用可检验的动词描述。" },
+    { "key": "concepts", "label": "核心概念", "desc": "必须内化的概念性知识，附自检问题。" },
+    { "key": "tools", "label": "工具速查", "desc": "知道存在、会查即可的 API/语法/命令。" },
+    { "key": "demo", "label": "交互式 demo", "desc": "可在浏览器里调参数、看曲线、做参数扫描。" },
+    { "key": "exercise", "label": "代码练习", "desc": "浏览器内运行（Python/NumPy 完整支持）。" },
+    { "key": "tests", "label": "自动测试", "desc": "断言题目要点，跑通即通过。" },
+    { "key": "aiPrompts", "label": "AI 助教引导", "desc": "只提问不给答案，逼你自己想清楚。" },
+    { "key": "anki", "label": "Anki 卡片", "desc": "可直接导出的问答卡，含 .apkg/CSV。" },
+    { "key": "reading", "label": "延伸阅读", "desc": "教材章节与论文，标注读哪一节。" },
+    { "key": "checklist", "label": "完成自检", "desc": "勾完即视为掌握，进度自动记录。" }
+  ]
+}

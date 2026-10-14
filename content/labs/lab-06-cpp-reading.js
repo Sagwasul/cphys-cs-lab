@@ -1,0 +1,512 @@
+//__CPL_META__ {"id":"lab-06-cpp-reading","module":2,"week":1,"title":"C++ 阅读能力","subtitle":"读懂别人的 C++：从声明读出所有权，从签名读出拷贝，从循环读出复杂度","tags":["cpp","raii","const-reference","stl"]}
+
+/* ============================================================================
+ * lab-06-cpp-reading.js — 模块 2（工具性细节速查）· 第 1 周
+ *
+ * 目标不是"会写 C++"，而是**能读懂别人写的 C++**：
+ *   · 一眼看出每个函数参数会不会发生整块内存拷贝；
+ *   · 一眼看出哪块内存由谁负责释放；
+ *   · 一眼看出这个容器操作的复杂度。
+ * 浏览器里没有 C++ 运行时，因此本课的自动测试全部是**静态检查**，
+ * 本地编译命令写在 tools 与练习说明里。
+ * ==========================================================================*/
+
+(function () {
+  'use strict';
+
+  CPL.registerLesson({
+    id: 'lab-06-cpp-reading',
+    module: 2,
+    week: 1,
+    title: 'C++ 阅读能力',
+    subtitle: '读懂别人的 C++：从声明读出所有权，从签名读出拷贝，从循环读出复杂度',
+    tags: ['cpp','raii','const-reference','stl'],
+
+    // ── 1. 学习目标 ─────────────────────────────────────────────
+    objectives: [
+      '能解释 `const std::vector<double>&` 与 `std::vector<double>` 作为形参的实质差别（是否整块拷贝）。',
+      '能解释 RAII 的所有权模型，并定位一段代码里"谁负责释放哪块内存"。',
+      '能预测 STL 容器常见操作的时间复杂度，并指出哪些操作会触发整块重新分配。',
+      '能识别 C++ 里最容易出错的几类未定义行为（越界、悬垂、未初始化、迭代器失效）。',
+      '能把一段"按值传 3 个 vector + 手写 new/delete"的代码改写成现代 C++，并说出每处改动的理由。',
+    ],
+
+    // ── 2. 核心概念 ─────────────────────────────────────────────
+    concepts: [
+      {
+        term: '从声明读出语义：先看 &，再看 const',
+        must: 'internalize',
+        body: [
+          'C++ 的声明可以**从右往左**读。这一步是阅读他人代码的起点：',
+          '',
+          '```cpp',
+          'std::vector<double>  v1;                  // 一个 vector 对象（拥有它的缓冲区）',
+          'std::vector<double>& v2 = v1;             // v2 是 v1 的别名，不拷贝',
+          'const std::vector<double>& v3 = v1;       // 别名，且不允许通过 v3 修改 v1',
+          'std::vector<double>* p  = &v1;            // 指向 v1 的指针，可能为 nullptr',
+          'const double* p2 = v1.data();             // 指向首元素的指针，不能通过它改数据',
+          '```',
+          '',
+          '作为函数形参时，四种写法的代价完全不同：',
+          '',
+          '| 形参写法 | 是否拷贝数据 | 能否修改调用者 | 何时用 |',
+          '| --- | --- | --- | --- |',
+          '| `std::vector<double> v` | **整块拷贝**（$O(N)$ 次分配 + 复制）| 不能 | 需要一份可改的副本 |',
+          '| `std::vector<double>& v` | 不拷贝 | **能** | 需要就地修改调用者的数据 |',
+          '| `const std::vector<double>& v` | 不拷贝 | 不能 | **只读入参的默认写法** |',
+          '| `std::vector<double>&& v` | 不拷贝（可移动）| 能 | 接收临时量，`std::move` 之后 |',
+          '',
+          '> [!CAUTION] 一个隐藏的 O(N) 就在函数签名里',
+          '> ```cpp',
+          '> double dot(std::vector<double> a, std::vector<double> b);  // 每次调用拷贝 2N 个 double',
+          '> ```',
+          '> 在一个 $10^5$ 次迭代的循环里调用它，等于额外做了 $2\\times10^5 N$ 次内存复制。',
+          '> 这类问题在 profiler 里的表现是 `memcpy` 或 `operator new` 占了大头，**而不是算法本身**。',
+          '> 看到按值传容器，先问一句：函数体里真的需要一份可改的副本吗？',
+          '',
+          '> [!TIP] 读签名时同时看 const 的位置',
+          '> `const double* p` 是"指向 const double 的指针"（不能改数据，指针本身可改）；',
+          '> `double* const p` 是"const 指针，指向 double"（能改数据，指针本身不可改）；',
+          '> `const double* const p` 两者都不可改。**从右往左读**：`p is a const pointer to const double`。',
+        ].join('\n'),
+        selfCheck: [
+          '`const std::vector<double>&` 与 `std::vector<double>` 作为形参，差了多少次内存分配？',
+          '`const double* p` 与 `double* const p` 各不允许你做什么？',
+          '一个函数只读取 vector，你会怎么写它的签名？',
+        ],
+        anchor: '练习要求把三个按值传参改成 const 引用，静态检查会验证这一点。',
+      },
+
+      {
+        term: 'RAII：所有权写在类型里',
+        must: 'internalize',
+        body: [
+          'RAII（Resource Acquisition Is Initialization）的核心一句话：',
+          '**资源的所有权绑定在对象的生命周期上，析构函数负责释放。**',
+          '',
+          '| 类型 | 拥有的资源 | 何时释放 | 能否拷贝 |',
+          '| --- | --- | --- | --- |',
+          '| `std::vector<double>` | 堆上的连续缓冲区 | 离开作用域时 | 能（深拷贝）|',
+          '| `std::string` | 字符缓冲区 | 离开作用域时 | 能（深拷贝）|',
+          '| `std::unique_ptr<T>` | 一个 `T` 对象 | 离开作用域时 | **不能**（只能 move）|',
+          '| `std::shared_ptr<T>` | 引用计数管理的对象 | 计数归零时 | 能（共享）|',
+          '| 裸指针 `T*` | **什么都不拥有** | 需要手动 delete | 能（浅拷贝，危险）|',
+          '',
+          '判断"谁负责释放"的方法：**看类型**。看到 `std::vector` / `std::string` / `std::unique_ptr`，',
+          '就可以确定不需要写 `delete`；看到裸指针 `new` 出来的内存，就要去找对应的释放点。',
+          '',
+          '```cpp',
+          '// 差的写法：调用者必须记得 delete[]，而且拿不到长度',
+          'double* normalize_bad(const std::vector<double>& v) {',
+          '    double* out = new double[v.size()];',
+          '    // ... 填充 out ...',
+          '    return out;              // 所有权随裸指针"泄漏"到调用者',
+          '}',
+          '',
+          '// 好的写法：长度与所有权一起返回，Rule of Zero',
+          'std::vector<double> normalize(const std::vector<double>& v) {',
+          '    std::vector<double> out(v.size());   // 构造时分配，析构时释放',
+          '    // ... 填充 out ...',
+          '    return out;              // C++11 起是移动（不拷贝），NRVO 通常直接原地构造',
+          '}',
+          '```',
+          '',
+          '> [!IMPORTANT] Rule of Zero',
+          '> 如果一个类里的资源都由标准库类型（`vector`、`string`、智能指针）持有，',
+          '> 那么它**不需要写**析构函数、拷贝构造、拷贝赋值、移动构造、移动赋值 —— 编译器生成的版本就是对的。',
+          '> 反过来：**只要你写了一个 `delete`，就必须把五个特殊成员函数都想一遍**（Rule of Five）。',
+          '> 因此现代 C++ 的第一条纪律是：不要写裸 `new` / `delete`。',
+          '',
+          '> [!DEBUG] 三类立刻能看出来的未定义行为',
+          '> 1. **悬垂（dangling）**：返回局部变量的引用/指针，或返回指向已 `delete` 内存的指针；',
+          '> 2. **越界**：`v[i]` 不检查边界，`v.at(i)` 会抛 `std::out_of_range`；',
+          '> 3. **迭代器失效**：`push_back` 可能重新分配整个缓冲区，让所有已有迭代器与指针失效——',
+          '>    在范围 `for` 里修改容器大小是经典错误。',
+          '> 找这三类问题最高效的工具是 `-fsanitize=address,undefined`（见 tools）。',
+        ].join('\n'),
+        selfCheck: [
+          '看到函数返回 `double*`，你需要问哪两个问题？',
+          'Rule of Zero 说的是什么？为什么它等价于"不要写裸 new/delete"？',
+          '为什么在 `for (auto& x : v)` 里 `v.push_back(...)` 是危险的？',
+        ],
+        anchor: '练习的归一化函数正是从"返回裸指针"改成"返回 std::vector"。',
+      },
+
+      {
+        term: '读循环：auto 的三个版本与复杂度',
+        must: 'internalize',
+        body: [
+          '范围 `for` 里 `auto` 的三种写法差别很大：',
+          '',
+          '| 写法 | 是否拷贝每个元素 | 能否修改 | 何时用 |',
+          '| --- | --- | --- | --- |',
+          '| `for (auto x : v)` | **拷贝**每个元素 | 改的是副本 | 元素很小（`int`、`double`）|',
+          '| `for (auto& x : v)` | 不拷贝 | **能改原容器** | 需要写回 |',
+          '| `for (const auto& x : v)` | 不拷贝 | 不能 | **只读遍历的默认写法** |',
+          '',
+          '对 `std::vector<std::string>` 或 `std::vector<Eigen::MatrixXd>` 这类元素较大的容器，',
+          '`for (auto x : v)` 会在每次迭代里做一次深拷贝——这是**藏在语法糖里的 O(N) 甚至 O(N²)**。',
+          '',
+          'STL 容器的复杂度保证必须记住（面试会问，但更重要的是写代码时不会选错）：',
+          '',
+          '| 容器 | 随机访问 | 尾部插入 | 中间插入 | 查找 |',
+          '| --- | --- | --- | --- | --- |',
+          '| `std::vector` | $O(1)$ | 摊销 $O(1)$ | $O(N)$（搬移）| $O(N)$（无序）|',
+          '| `std::deque` | $O(1)$ | $O(1)$ | $O(N)$ | $O(N)$ |',
+          '| `std::list` | **$O(N)$** | $O(1)$ | $O(1)$（已知位置）| $O(N)$ |',
+          '| `std::map` / `set` | — | — | $O(\\log N)$ | $O(\\log N)$ |',
+          '| `std::unordered_map` | — | — | 期望 $O(1)$ | 期望 $O(1)$，最坏 $O(N)$ |',
+          '',
+          '> [!NUMERIC] "list 中间插入是 O(1)"这句话的半真半假',
+          '> 只有**你已经持有那个位置的迭代器**时才是 $O(1)$。',
+          '> 如果要从头找到位置，那一步是 $O(N)$；而且链表的指针追逐在缓存上极不友好（见 lab-01 的 demo）。',
+          '> 实践中，**绝大多数"应该用 list"的场景，用 vector 反而更快**。',
+          '> C++ 标准与 Bjarne Stroustrup 本人都有过测量：在小元素、频繁中间插入的负载下，vector 常常仍然胜出。',
+          '',
+          '> [!TIP] 读代码时给循环标量级',
+          '> 看到一个三层嵌套 `for`，先给每层标上规模（$N$、$N$、常数），再写下 $N^{p}$。',
+          '> 常见的"伪线性"陷阱：内层调用了一个 $O(N)$ 的函数（`std::find`、`v.size()` 之外的容器操作、',
+          '> `strlen`、按值传参的拷贝）。**读到函数调用就要问它的复杂度**，这是阅读 C++ 的核心技能。',
+        ].join('\n'),
+        selfCheck: [
+          '`for (auto s : v)` 里 `v` 是 `std::vector<std::string>`，每次迭代的代价是什么？',
+          '`std::list` 的中间插入真的是 $O(1)$ 吗？前提是什么？',
+          '`std::vector::size()` 是 $O(1)$ 还是 $O(N)$？`std::list::size()` 在 C++11 之前呢？',
+        ],
+        anchor: 'demo complexity-table 可以把这些容器操作放到同一张量级表里对比 N 放大后的耗时。',
+      },
+    ],
+
+    // ── 3. 工具速查 ─────────────────────────────────────────────
+    tools: [
+      {
+        name: 'std::vector 官方接口与复杂度保证',
+        must: 'lookup',
+        doc: 'https://en.cppreference.com/w/cpp/container/vector',
+        code: 'v.reserve(n);   // 预分配容量，避免多次扩容搬移\nv.at(i);        // 带边界检查，越界抛 std::out_of_range\nv.data();       // 取裸指针，与 C/Fortran 接口时用',
+        note: '页面底部的 "Complexity" 一行就是权威答案。`push_back` 摊销 O(1) 但会失效迭代器。',
+      },
+      {
+        name: 'C++ Core Guidelines：函数参数与所有权',
+        must: 'lookup',
+        doc: 'https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines',
+        code: '// F.16: 只读入参用 const T&；F.20: 输出用返回值，不要用输出参数',
+        note: '读 F 系列（函数）与 R 系列（资源管理）。这是"现代 C++ 该怎么写"的权威清单。',
+      },
+      {
+        name: 'cppreference：引用与值类别',
+        must: 'lookup',
+        doc: 'https://en.cppreference.com/w/cpp/language/reference',
+        code: 'T& 左值引用 | const T& 常左值引用（可绑定临时量）| T&& 右值引用（移动语义）',
+        note: '`const T&` 能绑定临时量，这是它能安全作为只读形参的原因。',
+      },
+      {
+        name: 'Compiler Explorer（godbolt）：看编译器到底生成了什么',
+        must: 'lookup',
+        doc: 'https://godbolt.org/',
+        code: '// 粘贴代码，右侧看汇编；可以对比 -O0 与 -O2 的差异',
+        note: '读库代码时，用它确认"这个函数有没有真的被内联""这次拷贝有没有被消除"，比猜测可靠。',
+      },
+      {
+        name: 'Sanitizer：一键抓越界、UB、数据竞争',
+        must: 'lookup',
+        doc: 'https://clang.llvm.org/docs/AddressSanitizer.html',
+        code: 'g++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer main.cpp -o main\n./main',
+        note: '调试构建必备。会直接给出出错的文件行号与访问的字节范围，比自己加 printf 高效一个量级。',
+      },
+      {
+        name: 'clang-tidy：静态检查与现代化建议',
+        must: 'lookup',
+        doc: 'https://clang.llvm.org/extra/clang-tidy/',
+        code: 'clang-tidy main.cpp --checks="modernize-*,performance-*,bugprone-*" -- -std=c++17',
+        note: '`modernize-use-emplace`、`performance-unnecessary-copy-initialization` 这类检查正好对应本课内容。',
+      },
+    ],
+
+    docChallenges: [
+      {
+        q: '给你这个 API：`std::vector::reserve(n)`。2 分钟内从 cppreference 查出：它改变的是 `size()` 还是 `capacity()`？`reserve` 之后能不能直接 `v[0] = 1.0`？和 `resize(n)` 有什么区别？',
+        answer: '`reserve(n)` 只改变 **`capacity()`**（保证至少能装 $n$ 个元素而不重新分配），**不改变 `size()`**——元素仍然没有被构造，`v[0]` 是未定义行为。`resize(n)` 会真正构造 $n$ 个元素并把 `size()` 改成 $n$（多出来的部分值初始化）。用法：循环里 `push_back` 前先 `reserve` 可以避免 $O(\\log N)$ 次扩容与搬移；要按下标写入则必须用 `resize` 或先构造好。文档：https://en.cppreference.com/w/cpp/container/vector/reserve',
+      },
+      {
+        q: '给你这个 API：`std::vector::emplace_back(args...)`。2 分钟内查出它与 `push_back(obj)` 的区别、C++17 起 `push_back` 是否也能做到同样的事、以及为什么 `emplace_back` 有时反而更慢？',
+        answer: '`emplace_back` 用参数**就地构造**元素（避免先构造临时对象再移动/拷贝）；`push_back` 需要一个已存在的对象（左值时拷贝、右值时移动）。C++17 起 `push_back` 也有了接受 `Args&&...` 的重载，对简单类型二者几乎等价。`emplace_back` 更慢的情形：当传入的已经是同类型对象时，它会多一次显式构造（而 `push_back` 可以直接移动），而且 `emplace_back` 会绕过 `explicit` 检查，容易写出隐式类型转换的坑。文档：https://en.cppreference.com/w/cpp/container/vector/emplace_back',
+      },
+    ],
+
+    // ── 4. 交互式 demo ──────────────────────────────────────────
+    demo: {
+      kind: 'complexity-table',
+      title: '把 STL 容器的操作放进同一张量级表',
+      intro:
+        '表格给出若干复杂度在同一条 N 上的操作数与估算耗时，并给出内存占用。把 N 从 $10^4$ 拖到 $10^6$：$O(1)$ 与 $O(\\log N)$ 几乎不动，$O(N)$ 涨 100 倍，$O(N^2)$ 涨 $10^4$ 倍。读 C++ 时给自己一个硬性习惯——**每读到一次容器操作或函数调用，就在心里给它标一个量级**，尤其是被放在循环里的那些。这个习惯能让你在不动编译器的情况下发现绝大多数 $O(N^2)$ 陷阱。',
+      params: { presets: ['O(1)', 'O(log N)', 'O(N)', 'O(N log N)', 'O(N²)'], N: 1000000, memBytesPerElem: 8 },
+    },
+
+    // ── 5. 代码练习 ─────────────────────────────────────────────
+    exercise: {
+      id: 'main',
+      lang: 'cpp',
+      title: '把「按值传 3 个 vector + 手写 new」改写成现代 C++',
+      brief: [
+        '下面是一段能编译、能跑、但问题很多的 C++ 代码。请把它改写成现代 C++，并保证接口行为不变：',
+        '',
+        '```cpp',
+        'double weighted_dot(std::vector<double> x, std::vector<double> y, std::vector<double> w);',
+        'double* normalize(std::vector<double> v);   // 返回裸指针，调用者负责 delete[]',
+        '```',
+        '',
+        '要求：',
+        '1. `weighted_dot` 的三个形参改成 `const std::vector<double>&`，并增加**长度一致性检查**（不一致时 `throw std::invalid_argument`）；',
+        '2. `normalize` 的返回值改成 `std::vector<double>`（长度与所有权一起返回），形参改成 const 引用；',
+        '3. 不允许出现 `new` / `delete` / `malloc`；零向量要 `throw std::domain_error`；',
+        '4. 保留这两个函数的名字与返回类型（`double` / `std::vector<double>`）。',
+        '',
+        '浏览器里没有 C++ 编译器，本课的自动测试是**静态检查**（正则检查源码）。',
+        '本地请用下面两条命令验证你的改动——第二条尤其重要，它能直接抓出越界与未定义行为：',
+        '',
+        '```bash',
+        'g++ -std=c++17 -Wall -Wextra -O2 main.cpp -o main && ./main',
+        'g++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer main.cpp -o main_dbg && ./main_dbg',
+        '```',
+        '',
+        '提示：先把"每次调用拷贝多少个 double"算出来，再决定每个形参该怎么写。',
+      ].join('\n'),
+      starter: [
+        '#include <vector>',
+        '#include <cmath>',
+        '#include <iostream>',
+        '',
+        '// 问题 1：三个 vector 都按值传参，每次调用整块拷贝 3N 个 double。',
+        '// 问题 2：没有任何长度检查，越界写入是未定义行为。',
+        'double weighted_dot(std::vector<double> x,',
+        '                    std::vector<double> y,',
+        '                    std::vector<double> w) {',
+        '    double s = 0.0;',
+        '    for (std::size_t i = 0; i < x.size(); ++i) {',
+        '        s += w[i] * x[i] * y[i];',
+        '    }',
+        '    return s;',
+        '}',
+        '',
+        '// 问题 3：手写 new 返回裸指针，长度丢失，所有权泄漏给调用者。',
+        '// 问题 4：按值传参又拷贝一次；零向量时 nrm = 0 会得到 inf/nan。',
+        'double* normalize(std::vector<double> v) {',
+        '    double* out = new double[v.size()];',
+        '    double nrm = 0.0;',
+        '    for (std::size_t i = 0; i < v.size(); ++i) {',
+        '        nrm += v[i] * v[i];',
+        '    }',
+        '    nrm = std::sqrt(nrm);',
+        '    for (std::size_t i = 0; i < v.size(); ++i) {',
+        '        out[i] = v[i] / nrm;',
+        '    }',
+        '    return out;   // 调用者必须记得 delete[]',
+        '}',
+        '',
+        'int main() {',
+        '    std::vector<double> x{3.0, 0.0}, y{4.0, 1.0}, w{1.0, 1.0};',
+        '    std::cout << weighted_dot(x, y, w) << "\\n";',
+        '    double* n = normalize(x);',
+        '    std::cout << n[0] << " " << n[1] << "\\n";',
+        '    delete[] n;',
+        '    return 0;',
+        '}',
+      ].join('\n'),
+      solution: [
+        '#include <vector>',
+        '#include <cmath>',
+        '#include <stdexcept>',
+        '#include <iostream>',
+        '',
+        '// 只读入参一律用 const 引用：零拷贝，且编译器保证不修改调用者数据。',
+        'double weighted_dot(const std::vector<double>& x,',
+        '                    const std::vector<double>& y,',
+        '                    const std::vector<double>& w) {',
+        '    if (x.size() != y.size() || x.size() != w.size()) {',
+        '        throw std::invalid_argument("weighted_dot: 三个向量长度必须一致");',
+        '    }',
+        '    double s = 0.0;',
+        '    for (std::size_t i = 0; i < x.size(); ++i) {',
+        '        s += w[i] * x[i] * y[i];',
+        '    }',
+        '    return s;',
+        '}',
+        '',
+        '// 返回值改用 std::vector：长度与所有权一起返回，调用者不需要也不应该手动释放。',
+        'std::vector<double> normalize(const std::vector<double>& v) {',
+        '    double nrm2 = 0.0;',
+        '    for (const double vi : v) {          // 只读遍历，不拷贝元素',
+        '        nrm2 += vi * vi;',
+        '    }',
+        '    const double nrm = std::sqrt(nrm2);',
+        '    if (nrm == 0.0) {',
+        '        throw std::domain_error("normalize: 零向量没有单位化方向");',
+        '    }',
+        '    std::vector<double> out(v.size());   // 构造时分配，离开作用域自动释放（RAII）',
+        '    for (std::size_t i = 0; i < v.size(); ++i) {',
+        '        out[i] = v[i] / nrm;',
+        '    }',
+        '    return out;                          // C++11 起为移动，不发生深拷贝',
+        '}',
+        '',
+        'int main() {',
+        '    const std::vector<double> x{3.0, 0.0};',
+        '    const std::vector<double> y{4.0, 1.0};',
+        '    const std::vector<double> w{1.0, 1.0};',
+        '    std::cout << weighted_dot(x, y, w) << "\\n";',
+        '    const std::vector<double> n = normalize(x);',
+        '    std::cout << n[0] << " " << n[1] << "\\n";',
+        '    return 0;   // 无需任何手动释放',
+        '}',
+      ].join('\n'),
+      hints: [
+        '先算一笔账：`weighted_dot` 原来的签名在每次调用时拷贝多少个 `double`？在 $10^5$ 次调用的循环里，这笔额外开销是 $3\\times10^5 N$ 次复制。',
+        '`const T&` 为什么能安全地绑定临时量，而 `T&` 不能？这决定了哪种写法能作为通用的只读形参。',
+        '`normalize` 里 `nrm == 0.0` 这个判断能不能用 `nrm < 1e-300`？想想浮点比较与 `denormal` 的边界（这正是 lab-02 的内容）。',
+        '把返回值从 `double*` 改成 `std::vector<double>` 之后，调用者拿到的不只是指针，还有 `size()`。这对接口设计意味着什么？',
+        '本地的第二条编译命令（`-fsanitize=address,undefined`）会怎样报出原来那句 `delete[] n;` 之外的潜在问题？如果你忘了 `delete[]`，它会报什么？',
+      ],
+    },
+
+    // ── 6. 自动测试（C++ 无浏览器运行时，全部为静态检查）─────────
+    tests: [
+      {
+        name: '静态检查：const 引用传参、无裸 new/delete、有错误处理',
+        kind: 'static',
+        rules: [
+          {
+            mustMatch: 'const\\s+std::vector<double>\\s*&',
+            message:
+              '没有找到 `const std::vector<double>&` 形式的形参。只读入参必须用 const 引用，否则每次调用都会整块拷贝 vector。',
+          },
+          {
+            mustNotMatch: 'new\\s+double',
+            message: '仍然存在 `new double[...]`。请改用 `std::vector<double>`，让所有权由类型负责（RAII / Rule of Zero）。',
+          },
+          {
+            mustNotMatch: 'delete',
+            message: '仍然存在 `delete`。改成 `std::vector` 之后不需要任何手动释放；若 `delete` 只出现在注释里，把注释也改掉。',
+          },
+          {
+            mustNotMatch: 'malloc',
+            message: '不允许使用 malloc/free：C++ 里请用标准库容器管理内存。',
+          },
+          {
+            mustMatch: 'throw\\s+std::(invalid_argument|domain_error)',
+            message: '缺少错误处理：长度不一致时应 `throw std::invalid_argument`，零向量时应 `throw std::domain_error`。',
+          },
+        ],
+      },
+      {
+        name: '静态检查：函数名与返回类型保持不变',
+        kind: 'static',
+        rules: [
+          {
+            mustMatch: 'double\\s+weighted_dot\\s*\\(',
+            message: '必须保留函数 `double weighted_dot(...)`，名字与返回类型不要改。',
+          },
+          {
+            mustMatch: 'std::vector<double>\\s+normalize\\s*\\(',
+            message: '必须把 `normalize` 的返回类型改成 `std::vector<double>`（不要用裸指针，也不要改成 void）。',
+          },
+          {
+            mustMatch: '#include\\s*<vector>',
+            target: 'raw',
+            message: '需要 `#include <vector>`。',
+          },
+          {
+            minLength: 400,
+            message: '代码过短（少于 400 字符），看起来没有完成改写。',
+          },
+        ],
+      },
+    ],
+
+    // ── 7. AI 引导问题 ──────────────────────────────────────────
+    aiPrompts: [
+      '改写前 `weighted_dot` 每次调用拷贝多少个 `double`？在你的实际数据规模 $N$ 下，这笔开销占总时间多少？',
+      '`const std::vector<double>&` 能绑定临时量，`std::vector<double>&` 不能——这个差别与你选择形参写法有什么关系？',
+      '`normalize` 的零向量判断写成 `nrm == 0.0` 和 `nrm2 == 0.0` 有区别吗？哪种更安全？',
+      '你读过的科研 C++ 代码里，哪个函数的签名暗示了一次隐藏的整块拷贝？它的规模是多少？',
+    ],
+
+    // ── 8. Anki 卡片 ────────────────────────────────────────────
+    anki: [
+      {
+        front: '`const std::vector<double>&` 与 `std::vector<double>` 作为形参，本质差别是什么？',
+        back: '前者**不拷贝**（只是一次指针绑定），后者每次调用都**整块深拷贝** $N$ 个 double（$O(N)$ 次分配 + 复制）。只读入参的默认写法是 `const T&`。',
+        tags: ['cpp', 'parameter'],
+      },
+      {
+        front: '`const double* p`、`double* const p`、`const double* const p` 分别不允许你做什么？',
+        back: '从右往左读：`const double* p` = 不能通过 p 改数据，但 p 本身可改指向；`double* const p` = p 不可改指向，但能改数据；`const double* const p` = 两者都不可改。',
+        tags: ['cpp', 'const'],
+      },
+      {
+        front: 'RAII 的核心是什么？怎么一眼判断"谁负责释放内存"？',
+        back: '资源所有权绑定在对象生命周期上，析构函数负责释放。判断方法：**看类型**——`std::vector` / `std::string` / 智能指针会自动释放；裸指针 `new` 出来的内存必须手动找 `delete`。',
+        tags: ['cpp', 'raii'],
+      },
+      {
+        front: 'Rule of Zero 说的是什么？',
+        back: '如果类的资源都由标准库类型持有，就**不需要写**析构、拷贝构造、拷贝赋值、移动构造、移动赋值——编译器生成的版本是对的。推论：不要写裸 `new`/`delete`；一旦写了 `delete`，就必须把五个特殊成员函数都想一遍（Rule of Five）。',
+        tags: ['cpp', 'raii'],
+      },
+      {
+        front: '`for (auto x : v)`、`for (auto& x : v)`、`for (const auto& x : v)` 的区别？',
+        back: '`auto x` **拷贝**每个元素（写得进去的是副本）；`auto& x` 不拷贝且可修改原容器；`const auto& x` 不拷贝且只读——**只读遍历的默认写法**。对 `vector<string>` 这类大元素，`auto x` 每次迭代都是深拷贝。',
+        tags: ['cpp', 'range-for'],
+      },
+      {
+        front: '`std::vector` 的 `push_back` 复杂度是多少？它会导致什么副作用？',
+        back: '**摊销 $O(1)$**（按倍数扩容，总搬移 $O(N)$）。副作用：扩容会重新分配缓冲区，使**所有已有的迭代器、指针、引用全部失效**。所以不要在范围 `for` 里对同一容器 `push_back`。',
+        tags: ['cpp', 'vector'],
+      },
+      {
+        front: '`std::list` 的中间插入真的是 $O(1)$ 吗？为什么实践中常常仍选 `vector`？',
+        back: '只有当**已经持有那个位置的迭代器**时才是 $O(1)$；从头查找是 $O(N)$。而且链表节点分散在堆上，指针追逐对缓存极不友好（见 lab-01），常数因子可能差好几倍。小元素场景下 `vector` 常常更快。',
+        tags: ['cpp', 'stl'],
+      },
+      {
+        front: '读 C++ 时，哪三类未定义行为最容易漏掉？用什么工具抓？',
+        back: '① **悬垂**：返回局部变量的引用/指针，或指向已 delete 的内存；② **越界**：`v[i]` 不检查边界（`v.at(i)` 会抛异常）；③ **迭代器失效**：容器扩容后旧迭代器失效。工具：`-fsanitize=address,undefined`（ASan + UBSan）。',
+        tags: ['cpp', 'debug'],
+      },
+    ],
+
+    // ── 9. 延伸阅读 ─────────────────────────────────────────────
+    reading: [
+      {
+        title: 'C++ Core Guidelines（官方在线版）',
+        url: 'https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines',
+        note: '重点读 F 系列（函数与参数传递）与 R 系列（资源管理）。R.1、R.3、R.11 直接对应本课的 RAII 部分。',
+      },
+      {
+        title: 'cppreference：std::vector 接口与复杂度表',
+        url: 'https://en.cppreference.com/w/cpp/container/vector',
+        note: '看每个成员函数下方的 Complexity 一行，以及 "Iterator invalidation" 那张表。',
+      },
+      {
+        title: 'Effective Modern C++ / Scott Meyers 的移动语义与完美转发章节',
+        url: 'https://www.aristeia.com/books.html',
+        note: '读 Item 23–30（右值引用、std::move、完美转发）。理解"移动只是资源转移，不是魔法"。',
+      },
+      {
+        title: 'Bjarne Stroustrup：Why you should avoid Linked Lists（与 vector 的实测对比）',
+        url: 'https://www.youtube.com/watch?v=YQs6IC-vgmo',
+        note: '看数据部分即可：随机插入/删除负载下 vector 与 list 的实测对比，与教科书结论相反。',
+      },
+    ],
+
+    // ── 10. 完成自检清单 ────────────────────────────────────────
+    checklist: [
+      '能一眼说出一个函数签名里会不会发生整块拷贝',
+      '能从类型判断一块内存由谁负责释放，并解释 Rule of Zero',
+      '能背出 `vector` / `list` / `map` / `unordered_map` 的常见操作复杂度',
+      '能说出 `auto` / `auto&` / `const auto&` 在范围 for 里的差别',
+      '练习的两条静态测试全部通过，并且本地用 `-fsanitize=address,undefined` 编译运行无报错',
+      '能在读过的科研 C++ 代码里找出至少一处"藏在函数调用里的 O(N)"',
+    ],
+  });
+})();
