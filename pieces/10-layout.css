@@ -748,3 +748,49 @@ body {
     padding: 0;
   }
 }
+
+/* ── 视图切换的"忙"提示（fixed 在页头下方，居中） ────────────── */
+.cpl-busy {
+  position: fixed;
+  top: calc(var(--cpl-header-h) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  gap: var(--cpl-space-2);
+  padding: 8px 16px;
+  border: 1px solid var(--cpl-border-strong);
+  border-radius: var(--cpl-radius-pill);
+  background: var(--cpl-bg-elev);
+  box-shadow: var(--cpl-shadow);
+  font-size: var(--cpl-fs-sm);
+  color: var(--cpl-text-soft);
+  max-width: min(92vw, 420px);
+}
+
+.cpl-busy__spinner {
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  border: 2px solid color-mix(in srgb, var(--cpl-accent) 30%, transparent);
+  border-top-color: var(--cpl-accent);
+  border-radius: 50%;
+  animation: cpl-spin 0.7s linear infinite;
+}
+
+@keyframes cpl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:root[data-cpl-motion="reduced"] .cpl-busy__spinner {
+  animation: none;
+}
+
+.cpl-busy__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

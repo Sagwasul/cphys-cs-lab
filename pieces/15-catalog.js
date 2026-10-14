@@ -168,7 +168,22 @@
       script.charset = 'utf-8';
       script.dataset.cplLesson = id;
 
+      // 加载超时：<script> 在某些网络环境下会"既不 onload 也不 onerror"
+      // （请求被中间层挂起、代理静默丢弃等）。没有超时的话这个 Promise
+      // 永远不 settle，调用方的 await 就永久挂住——而 nav.render 里
+      // "正在渲染"的标志一旦不释放，用户点任何链接都会毫无反应。
+      // 这是真实遇到过的现象：点「设置」没反应。
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(
+          new Error(
+            `加载课程文件 ${meta.file} 超时（20 秒）。可能网络或中间层挂住了这个请求，请刷新页面重试。`
+          )
+        );
+      }, 20000);
+
       const cleanup = () => {
+        clearTimeout(timer);
         script.onload = null;
         script.onerror = null;
       };

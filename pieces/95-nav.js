@@ -55,7 +55,11 @@
 
   nav.render = async function render() {
     if (rendering) {
+      // 上一个视图还在渲染（例如某一课正在加载）。这里**必须给出可见反馈**，
+      // 否则用户点了链接却觉得"没反应"——这正是真实遇到过的问题。
+      // 之前是静默 pending = true; return;
       pending = true;
+      nav.showBusy('正在完成上一个页面的加载…');
       return;
     }
     rendering = true;
@@ -101,6 +105,7 @@
         ])
       );
     } finally {
+      nav.hideBusy();
       main.focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: CPL.prefs.get('reducedMotion') ? 'auto' : 'smooth' });
       rendering = false;
@@ -109,6 +114,26 @@
         nav.render();
       }
     }
+  };
+
+  /**
+   * 顶部"忙"提示：只在视图切换被排队、或视图自己声明很慢时出现。
+   * 位置固定在页头下方，任何视图都能看到，避免"点了没反应"的错觉。
+   */
+  nav.showBusy = function showBusy(text) {
+    let el = document.getElementById('cpl-busy');
+    if (!el) {
+      el = dom.h('div', { class: 'cpl-busy', id: 'cpl-busy', role: 'status', 'aria-live': 'polite' });
+      el.append(dom.h('span', { class: 'cpl-busy__spinner', 'aria-hidden': 'true' }), dom.h('span', { class: 'cpl-busy__text' }));
+      document.body.append(el);
+    }
+    el.querySelector('.cpl-busy__text').textContent = text || '加载中…';
+    el.hidden = false;
+  };
+
+  nav.hideBusy = function hideBusy() {
+    const el = document.getElementById('cpl-busy');
+    if (el) el.hidden = true;
   };
 
   // ─────────────────────────────────────────────────────────────
