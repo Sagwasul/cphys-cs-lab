@@ -25,7 +25,7 @@ import { loadApp, ROOT_DIR } from '../helpers/load-app.mjs';
 autoFile(import.meta.url);
 
 const CONTENT = join(ROOT_DIR, 'content');
-const FOLDERS = ['labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
+const FOLDERS = ['basics', 'labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
 
 /**
  * 找一个可用的 python 解释器。
@@ -104,11 +104,28 @@ async function loadAllLessons() {
   return CPL.catalog.loadedIds().map((id) => CPL.catalog.get(id));
 }
 
-/** 与 pieces/60-runtimes.js 的 buildRunCode 保持一致。 */
+// ─────────────────────────────────────────────────────────────
+// 输出协议（必须与 pieces/60-runtimes.js 的 buildRunCode 完全一致）
+//
+// ⚠ 这里曾经有一个致命缺陷，值得留档：
+//   旧版把 `_cpl_out.getvalue()` 当作**最后一条语句**，指望它的值被打印出来。
+//   但 Python 只在**交互式 REPL** 里显示表达式结果，`python -c` 不会。
+//   于是子进程 stdout 恒为空 → `__CPL_FAIL__` 永远检测不到 →
+//   "参考解全部通过" 与 "starter 应被拦下" 两条检查**恒为绿，形同虚设**。
+//   而且这个缺陷在受限沙箱里完全看不出来，因为沙箱会直接跳过整个 python 验证。
+//   （同源缺陷此前也在 scripts/verify-python.mjs 里出现过，已修。）
+//   修法：显式 write 到 sys.__stdout__，并用不可打印字符做分隔；
+//   同时下面加了一条 harness 自检，用"必然失败的断言"证明检测能力真的存在。
+// ─────────────────────────────────────────────────────────────
+const OUT_MARK = '\u001eCPL_OUT\u001e';
+const ERR_MARK = '\u001cCPL_ERR\u001c';
+const END_MARK = '\u001d';
+
 function buildRunCode(src) {
   const lines = src.split('\n').map((l) => (l.length ? '    ' + l : ''));
   return [
     'import sys as _cpl_sys, io as _cpl_io',
+    '_cpl_real_out = _cpl_sys.__stdout__',
     '_cpl_out = _cpl_io.StringIO()',
     '_cpl_err = _cpl_io.StringIO()',
     '_cpl_saved = (_cpl_sys.stdout, _cpl_sys.stderr)',
@@ -122,9 +139,24 @@ function buildRunCode(src) {
     'finally:',
     '    _cpl_sys.stdout = _cpl_saved[0]',
     '    _cpl_sys.stderr = _cpl_saved[1]',
-    '_cpl_stdout_val = _cpl_out.getvalue()',
-    '_cpl_stderr_val = _cpl_err.getvalue()',
+    '_cpl_real_out.write("\\x1eCPL_OUT\\x1e" + _cpl_out.getvalue() + "\\x1cCPL_ERR\\x1c" + _cpl_err.getvalue() + "\\x1d")',
+    '_cpl_real_out.flush()',
   ].join('\n');
+}
+
+/** 从子进程 stdout 里解出捕获到的 (stdout, stderr)。 */
+function unpack(raw) {
+  const s = String(raw || '');
+  const a = s.indexOf(OUT_MARK);
+  if (a < 0) return { stdout: s, stderr: '', packed: false };
+  const b = s.indexOf(ERR_MARK, a + OUT_MARK.length);
+  if (b < 0) return { stdout: s.slice(a + OUT_MARK.length), stderr: '', packed: false };
+  const c = s.indexOf(END_MARK, b + ERR_MARK.length);
+  return {
+    stdout: s.slice(a + OUT_MARK.length, b),
+    stderr: c < 0 ? s.slice(b + ERR_MARK.length) : s.slice(b + ERR_MARK.length, c),
+    packed: true,
+  };
 }
 
 /** 与 pieces/50-tests.js 的 wrapPythonTest 保持一致。 */
@@ -161,17 +193,27 @@ function runPython(code, timeoutMs = 30000) {
     maxBuffer: 8 * 1024 * 1024,
     encoding: 'utf8',
   });
-  if (res.error) return { ok: false, stdout: '', stderr: '', message: 'spawn 失败：' + res.error.message };
-  if (res.status !== 0 && !res.stdout) {
-    return { ok: false, stdout: '', stderr: String(res.stderr || ''), message: 'python 非零退出：' + String(res.stderr || '').split('\n').slice(0, 3).join(' | ') };
+  // spawnSync 超时时 status 为 null 且没有 stdout；必须显式区分，否则会把"超时"当成"通过"
+  if (res.error) {
+    const killed = res.error.code === 'ETIMEDOUT' || Boolean(res.signal);
+    return { ok: false, stdout: '', stderr: '', message: killed ? `执行超时（>${Math.round(timeoutMs / 1000)} 秒）` : 'spawn 失败：' + res.error.message };
   }
-  const stdout = String(res.stdout || '');
-  const stderr = String(res.stderr || '');
-  const fail = /__CPL_FAIL__([\s\S]*)$/.exec(stdout);
+  if (res.signal) return { ok: false, stdout: '', stderr: '', message: `被信号终止：${res.signal}` };
+
+  const { stdout: capOut, stderr: capErr, packed } = unpack(String(res.stdout || ''));
+  if (!packed) {
+    return {
+      ok: false,
+      stdout: '',
+      stderr: capErr,
+      message: '未能解析捕获输出（python 可能没跑完包装代码）：' + JSON.stringify(String(res.stderr || res.stdout || '').slice(0, 200)),
+    };
+  }
+  const fail = /__CPL_FAIL__([\s\S]*)$/.exec(capOut);
   if (fail) {
-    return { ok: false, stdout: stdout.replace(/__CPL_FAIL__[\s\S]*$/, ''), stderr, message: fail[1].trim() };
+    return { ok: false, stdout: capOut.replace(/__CPL_FAIL__[\s\S]*$/, ''), stderr: capErr, message: fail[1].trim() };
   }
-  return { ok: true, stdout, stderr };
+  return { ok: true, stdout: capOut, stderr: capErr };
 }
 
 /** 取断言的失败标记；成功时可能还有 __CPL_FAIL__ 之外的内容。 */
@@ -193,6 +235,21 @@ test('本机有 python 可用于验证 python 测试的语义（不可用时显�
   console.log(`#   找到的解释器：${PY.exe || '（无）'}`);
   console.log('#   在正常开发机与 GitHub Actions（ubuntu-latest 自带 python3）上，这一整套检查会真正执行。');
   console.log('#   想在本机强制验证：直接运行 `python -c "..."` 或 `npm test`（不经受限沙箱）。');
+});
+
+test('harness 自检：这套检测真的能发现失败（否则下面所有结论都不可信）', () => {
+  if (!PYTHON) return;
+  // 用"必然为假"的断言跑一遍。如果它被判为通过，说明输出捕获协议坏了，
+  // 那么"参考解全部通过"这类结论就毫无意义——必须立刻失败。
+  const mustFail = runTest('python', { assert: 'assert 1 + 1 == 3, "自检：这个断言必须失败"' }, 'x = 1');
+  expect.equal(mustFail.ok, false, '一个必然为假的断言竟然被判为通过 → 输出捕获协议已坏，语义验证不可信');
+
+  const mustPass = runTest('python', { assert: 'assert 1 + 1 == 2' }, 'x = 1');
+  expect.equal(mustPass.ok, true, '一个必然为真的断言被判为失败：' + mustPass.message);
+
+  // 断言必须能看到用户代码里定义的东西（命名空间共享）
+  const shared = runTest('python', { assert: 'assert compute() == 42' }, 'def compute():\n    return 42');
+  expect.equal(shared.ok, true, '断言看不到用户代码定义的函数：' + shared.message);
 });
 
 test('全部课程的参考解（solution）都能通过它自己的 python 自动测试', () => {

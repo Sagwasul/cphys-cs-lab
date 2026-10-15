@@ -14,7 +14,7 @@ import { loadApp, ROOT_DIR } from '../helpers/load-app.mjs';
 autoFile(import.meta.url);
 
 const CONTENT = join(ROOT_DIR, 'content');
-const FOLDERS = ['labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
+const FOLDERS = ['basics', 'labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
 
 function collectLessonFiles() {
   const out = [];
@@ -100,8 +100,9 @@ test('元数据契约：id / module / week / title 齐全且唯一', async () =>
     ids.add(l.id);
     if (!l.title) problems.push(`${l.id}: 缺少 title`);
     if (!Number.isFinite(l.module)) problems.push(`${l.id}: module 不是数字`);
-    // week 99 是约定的"不占用正式周次"（用户自定义内容）
-    if (!Number.isFinite(l.week) || l.week < 1 || l.week > 99) problems.push(`${l.id}: week=${l.week} 超出 1..99`);
+    // week 允许小数：模块 0 用 0.5/0.6… 表示"排在正式第 1 周之前的前置内容"。
+    // 99 是约定的"不占用正式周次"（用户自定义内容）。
+    if (!Number.isFinite(l.week) || l.week < 0 || l.week > 99) problems.push(`${l.id}: week=${l.week} 超出 0..99`);
   }
   expect.equal(problems.length, 0, problems.join('\n  '));
 });

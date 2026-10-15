@@ -38,19 +38,58 @@
   const SYMBOLS = {
     cdot: '⋅', cdots: '⋯', ldots: '…', dots: '…', vdots: '⋮', ddots: '⋱',
     times: '×', div: '÷', pm: '±', mp: '∓', ast: '∗', star: '⋆', circ: '∘',
-    bullet: '∙', oplus: '⊕', otimes: '⊗', cap: '∩', cup: '∪', setminus: '∖',
-    subset: '⊂', supset: '⊃', subseteq: '⊆', supseteq: '⊇', in: '∈', notin: '∉',
-    ni: '∋', forall: '∀', exists: '∃', nexists: '∄', emptyset: '∅', varnothing: '∅',
-    infty: '∞', partial: '∂', nabla: '∇', propto: '∝', sim: '∼', simeq: '≃',
-    approx: '≈', cong: '≅', equiv: '≡', neq: '≠', ne: '≠', leq: '≤', le: '≤',
-    geq: '≥', ge: '≥', ll: '≪', gg: '≫', to: '→', rightarrow: '→', leftarrow: '←',
-    leftrightarrow: '↔', Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔',
-    mapsto: '↦', implies: '⟹', iff: '⟺', uparrow: '↑', downarrow: '↓',
+    bullet: '∙', oplus: '⊕', ominus: '⊖', otimes: '⊗', oslash: '⊘', odot: '⊙',
+    cap: '∩', cup: '∪', sqcap: '⊓', sqcup: '⊔', uplus: '⊎', setminus: '∖',
+    subset: '⊂', supset: '⊃', subseteq: '⊆', supseteq: '⊇', nsubset: '⊄',
+    in: '∈', notin: '∉', ni: '∋', owns: '∋',
+    forall: '∀', exists: '∃', nexists: '∄', emptyset: '∅', varnothing: '∅',
+    infty: '∞', partial: '∂', nabla: '∇', propto: '∝',
+    sim: '∼', simeq: '≃', approx: '≈', cong: '≅', equiv: '≡', neq: '≠', ne: '≠',
+    leq: '≤', le: '≤', geq: '≥', ge: '≥', ll: '≪', gg: '≫',
+    // 近似比较：数值收敛分析里极常用（"误差随步长按 ≲ h² 下降"）
+    lesssim: '≲', gtrsim: '≳', lessapprox: '⪅', gtrapprox: '⪆',
+    prec: '≺', succ: '≻', preceq: '⪯', succeq: '⪰',
+    to: '→', rightarrow: '→', leftarrow: '←', leftrightarrow: '↔',
+    Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔',
+    longrightarrow: '⟶', longleftarrow: '⟵', Longrightarrow: '⟹',
+    Longleftarrow: '⟸', Longleftrightarrow: '⟺', implies: '⟹', iff: '⟺',
+    mapsto: '↦', longmapsto: '⟼', uparrow: '↑', downarrow: '↓', updownarrow: '↕',
     prime: '′', angle: '∠', perp: '⊥', parallel: '∥', therefore: '∴', because: '∵',
     aleph: 'ℵ', hbar: 'ℏ', ell: 'ℓ', Re: 'ℜ', Im: 'ℑ', wp: '℘',
     langle: '⟨', rangle: '⟩', lceil: '⌈', rceil: '⌉', lfloor: '⌊', rfloor: '⌋',
-    lVert: '‖', rVert: '‖', vert: '|', Vert: '‖', backslash: '\\',
-    quad: '\u2003', qquad: '\u2003\u2003', ',': '\u2009', ';': '\u2005', ':': '\u2005', '!': '',
+    // 注意 | 与 ‖ 的区别（这条以前搞错过，渲染出来就是一个竖线的差别）：
+    //   裸 |      → 单竖线，绝对值的随意写法
+    //   \| 与 \Vert → 双竖线，范数
+    lVert: '‖', rVert: '‖', vert: '|', Vert: '‖',
+    lvert: '|', rvert: '|', lbrace: '{', rbrace: '}',
+    backslash: '\\', '\\|': '‖', '|': '|',
+    quad: '\u2003', qquad: '\u2003\u2003', '\\,': '\u2009', '\\;': '\u2005', '\\:': '\u2005', '\\!': '',
+  };
+
+  /**
+   * \left / \right 后面跟的定界符 → [左形, 右形]，且应渲染为可伸缩（stretchy）。
+   *
+   * 为什么必须单独一张表：\left\| 如果走普通符号查找，
+   * `\|` 会被拆成单个 `|`，结果双竖线变成单竖线（真实出现过的渲染错误）。
+   */
+  const DELIM_MAP = {
+    '(': ['(', ')'], ')': [')', ')'],
+    '[': ['[', ']'], ']': [']', ']'],
+    '{': ['{', '}'], '}': ['}', '}'],
+    // 注意 | 与 ‖ 的区别：
+    //   裸 |   → 单竖线（\left| x \right| 是绝对值）
+    //   \| 与 \Vert → 双竖线（\left\| x \right\| 是范数）
+    // 这里必须分开写，否则范数会悄悄变成单竖线。
+    '|': ['|', '|'], '\\|': ['‖', '‖'], '‖': ['‖', '‖'], '.': ['', ''], '/': ['/', '/'],
+    '<': ['⟨', '⟩'], '>': ['⟨', '⟩'],
+    lbrace: ['{', '}'], rbrace: ['}', '}'],
+    langle: ['⟨', '⟩'], rangle: ['⟩', '⟩'],
+    vert: ['|', '|'], Vert: ['‖', '‖'],
+    lvert: ['|', '|'], rvert: ['|', '|'],
+    lVert: ['‖', '‖'], rVert: ['‖', '‖'],
+    lfloor: ['⌊', '⌋'], rfloor: ['⌋', '⌋'],
+    lceil: ['⌈', '⌉'], rceil: ['⌉', '⌉'],
+    backslash: ['\\', '\\'],
   };
 
   const BIG_OPS = {
@@ -104,9 +143,16 @@
         let name = '';
         while (j < n && /[a-zA-Z]/.test(src[j])) name += src[j++];
         if (!name) {
-          // 单字符命令，如 \, \; \! \:
-          name = src[j] || '';
+          // 单字符命令，如 \, \; \! \: \| \%
+          // 保留反斜杠前缀，才能在语义上把 \|（范数双竖线）
+          // 与裸 |（绝对值单竖线）区分开——两者必须渲染成不同的符号。
+          const sym = src[j] || '';
           j++;
+          if (sym) {
+            tokens.push({ type: 'command', value: '\\' + sym });
+            i = j;
+            continue;
+          }
         }
         tokens.push({ type: 'command', value: name });
         i = j;
@@ -157,10 +203,69 @@
     const peek = () => tokens[pos];
     const next = () => tokens[pos++];
 
+    /** 读 \left / \right / \big 后面紧跟的那个定界符（文本形式或命令形式）。 */
+    function readDelimiter(isRight) {
+      const d = peek();
+      if (!d) return '';
+      if (d.type === 'command') {
+        const dm = DELIM_MAP[d.value];
+        if (dm) {
+          next();
+          return isRight ? dm[1] : dm[0];
+        }
+        // tokenizer 现在把 \{ \} 保留为带反斜杠的命令形式
+        if (d.value === '{' || d.value === '}' || d.value === '\\{' || d.value === '\\}') {
+          next();
+          return d.value.slice(-1);
+        }
+        return '';
+      }
+      if (d.type === 'text') {
+        const raw = d.value.trim();
+        if (raw && DELIM_MAP[raw]) {
+          next();
+          return isRight ? DELIM_MAP[raw][1] : DELIM_MAP[raw][0];
+        }
+        // 未收录的单字符定界符：原样使用
+        if (raw && raw.length === 1 && !/[a-zA-Z0-9]/.test(raw)) {
+          next();
+          return raw;
+        }
+      }
+      return '';
+    }
+
+    /**
+     * \left ... \right 必须作为**整体**解析。
+     *
+     * 如果让它们各自变成一个原子，会出两个问题：
+     *   ① \right\|_2 的下标会挂到整个表达式上，而不是右定界符上；
+     *   ② 左括号与右括号之间没有共同的"可伸缩容器"，括号无法随分式长高。
+     * 注意返回值**不**处理 ^ _：脚本由调用方（parseGroup / parseRow）统一挂。
+     */
+    function parseLeftRight() {
+      next(); // 吃掉 \left
+      const open = readDelimiter(false);
+      const inner = parseRow(false, { stopAtRight: true });
+      let close = '';
+      if (peek() && peek().type === 'command' && peek().value === 'right') {
+        next();
+        close = readDelimiter(true);
+      }
+      const children = [];
+      if (open) children.push({ kind: 'delim', text: open });
+      for (const c of inner.children || []) children.push(c);
+      if (close) children.push({ kind: 'delim', text: close });
+      return { kind: 'row', children };
+    }
+
     function parseGroup() {
-      // 读取一个"原子"：{...} 组、单个 token、或命令
+      // 读取一个"原子"：{...} 组、\left...\right、单个 token、或命令
       const t = peek();
       if (!t) return { kind: 'row', children: [] };
+      if (t.type === 'command' && (t.value === 'left' || t.value === 'right')) {
+        return parseLeftRight();
+      }
       if (t.type === 'lbrace') {
         next();
         const node = parseRow(true);
@@ -316,21 +421,31 @@
           return { kind: 'text', text: plain.replace(/[A-Z]/g, (c) => map[c] || c) };
         }
 
-        if (name === 'left' || name === 'right' || name === 'big' || name === 'Big' || name === 'bigg' || name === 'Bigg') {
-          // 定界符命令：把紧跟的定界符符号吃掉
-          const d = peek();
-          if (d && d.type === 'text') {
-            const raw = d.value.trim();
-            if (raw && /^[()\[\]|.\\/<>]/.test(raw)) {
-              next();
-              return { kind: 'text', text: DELIMS[raw] !== undefined ? DELIMS[raw] : raw };
-            }
-          }
-          if (d && d.type === 'command' && (d.value === '{' || d.value === '}' || d.value === 'lVert' || d.value === 'rVert' || d.value === 'vert' || d.value === 'Vert')) {
-            next();
-            return { kind: 'text', text: SYMBOLS[d.value] || '' };
-          }
-          return { kind: 'row', children: [] };
+        // 字体命令：参数照常渲染，只改字型。
+        // 这些命令以前没实现，会被降级成字面文字（页面上直接显示 "texttt"）。
+        if (name === 'texttt' || name === 'textrm' || name === 'textsf' || name === 'textnormal') {
+          return { kind: 'styled', variant: 'upright', body: parseGroup() };
+        }
+        if (name === 'mathcal' || name === 'mathscr' || name === 'mathfrak') {
+          // 花体/哥特体：MathML 用 mathvariant 表达，字体缺失时浏览器会自动回退，
+          // 也不会像"显示成 mathcal 字样"那样明显出错。
+          return { kind: 'styled', variant: name === 'mathfrak' ? 'fraktur' : 'script', body: parseGroup() };
+        }
+        if (name === 'bm' || name === 'boldsymbol' || name === 'mathbf') {
+          return { kind: 'styled', variant: 'bold', body: parseGroup() };
+        }
+
+        // \left...\right 由 parseRow / parseGroup 统一整体处理（见 parseLeftRight）。
+        // 这里若还留一个分支，会让左括号被单独吃掉，右括号随后变成孤立原子。
+        if (name === 'right') {
+          const d = readDelimiter(true);
+          return d ? { kind: 'delim', text: d } : { kind: 'row', children: [] };
+        }
+
+        // 上下花括号：\underbrace{...}_{说明} —— 算法复杂度与数值推导里很常见
+        if (name === 'underbrace' || name === 'overbrace' || name === 'underbracket' || name === 'overbracket') {
+          const body = parseGroup();
+          return { kind: name.indexOf('over') === 0 ? 'overbrace' : 'underbrace', body };
         }
 
         if (name === '\\') {
@@ -402,14 +517,22 @@
       return Boolean(node && node.kind === 'row' && (!node.children || node.children.length === 0));
     }
 
-    function parseRow(stopAtBrace) {
+    function parseRow(stopAtBrace, opts = {}) {
       const children = [];
       while (pos < tokens.length) {
         const t = peek();
         if (stopAtBrace && t.type === 'rbrace') break;
+        // \left...\right 的收尾：由 parseLeftRight 自己消费 \right，
+        // 这里只是在遇到"孤立的 \right"时停下，避免把它当成普通原子。
+        if (opts.stopAtRight && t.type === 'command' && t.value === 'right') break;
         if (t.type === 'command' && t.value === 'end') break;
         if (t.type === 'command' && t.value === '\\') break;
         if (t.type === 'align') break;
+        if (t.type === 'command' && t.value === 'left') {
+          // 整体解析 + 挂脚标：\left( \frac{a}{b} \right)^2
+          children.push(attachScripts(parseLeftRight()));
+          continue;
+        }
         children.push(parseAtom());
       }
       return { kind: 'row', children };
@@ -450,7 +573,10 @@
     return `<mn>${esc(text)}</mn>`;
   }
   function mo(text, opts = {}) {
-    const stretchy = opts.stretchy === false ? ' stretchy="false"' : '';
+    // 注意：MathML 里 stretchy 默认为 true，但不同浏览器对"隐式伸缩"的支持不一致，
+    // 所以这里显式写出来。早先的条件写反了（只在 opts.stretchy === false 时输出），
+    // 结果所有定界符都被强制成不伸缩——括号不会随分式长高，这正是"公式没渲染对"的观感。
+    const stretchy = opts.stretchy === false ? ' stretchy="false"' : ' stretchy="true"';
     const form = opts.form ? ` form="${opts.form}"` : '';
     return `<mo${stretchy}${form}>${esc(text)}</mo>`;
   }
@@ -473,6 +599,10 @@
       case 'text': {
         const t = node.text;
         if (!t) return '';
+        // 纯空白：直接输出空格字符。
+        // 不能走下面的"逐字符拆成 <mo>"分支——MathML 里 <mo> 默认可伸缩，
+        // 浏览器会把空格拉伸成一个大间隙，公式看起来"散架"。
+        if (/^\s+$/.test(t)) return ' ';
         if (DIGITS.test(t)) return mn(t);
         if (IDENT.test(t) && t.length === 1) return mi(t, { upright: node.upright });
         // 短的连续字母（mc、dx、psi）按单字母拆分：
@@ -486,11 +616,25 @@
         // 混合内容：逐字符拆分，字母用 mi、数字用 mn、其余用 mo
         let out = '';
         for (const ch of t) {
+          // 空白直接输出：<mo> 默认可伸缩，浏览器会把空格拉成大间隙
+          if (/\s/.test(ch)) { out += ' '; continue; }
           if (/[0-9.]/.test(ch)) out += mn(ch);
           else if (/[A-Za-z]/.test(ch)) out += mi(ch, { upright: node.upright });
-          else out += mo(ch === '-' ? '−' : ch);
+          else out += mo(ch === '-' ? '−' : ch, { stretchy: false });
         }
         return row(out);
+      }
+
+      // \left( ... \right) 这类定界符：标记可伸缩，让浏览器按内容高度自动拉长
+      case 'delim':
+        if (!node.text) return '';
+        return mo(node.text, { stretchy: true });
+
+      // \underbrace{...}_{说明} / \overbrace{...}^{说明}
+      case 'underbrace':
+      case 'overbrace': {
+        const tag = node.kind === 'underbrace' ? 'munder' : 'mover';
+        return `<${tag}>${renderNode(node.body)}<mo stretchy="true">${node.kind === 'underbrace' ? '⏟' : '⏞'}</mo></${tag}>`;
       }
 
       case 'frac':

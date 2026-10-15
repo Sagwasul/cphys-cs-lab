@@ -52,9 +52,11 @@ export function validateLessonSource(source, relPath) {
       problems.push(`${relPath}: 元数据缺少 "${key}"`);
     }
   }
-  if (typeof meta.week === 'number' && (meta.week < 1 || meta.week > 99)) {
-    // 99 是约定的"不占用正式周次"，排在课表末尾（用户自定义内容常用）
-    problems.push(`${relPath}: week=${meta.week} 超出 1..99`);
+  // week 允许小数：模块 0（零基础入门）用 0.5 / 0.6 / 0.7 … 表示
+  // "正式第 1 周之前的前置内容"，这样它们会稳定排在所有正式课程前面。
+  // 99 是约定的"不占用正式周次"，排在课表末尾（用户自定义内容常用）。
+  if (typeof meta.week === 'number' && (meta.week < 0 || meta.week > 99)) {
+    problems.push(`${relPath}: week=${meta.week} 超出 0..99`);
   }
   // 课程文件在被 <script> 标签加载时会成为非模块脚本，
   // 因此绝不允许出现 ESM 语法（否则浏览器直接抛 SyntaxError）。
@@ -70,8 +72,15 @@ export function validateLessonSource(source, relPath) {
   return { meta, problems };
 }
 
-/** 目录名 → 模块归属，用于在缺 manifest 时兜底。 */
+/**
+ * 目录名 → 模块归属，用于在缺 manifest 时兜底。
+ *
+ * 注意：课程文件里都会显式写 module，这里的映射只是兜底，
+ * 必须与既有课程保持一致（meta 目录里既有课程写的是 module 0，
+ * 而新增的 basics 目录显式写 module 0，两者不冲突）。
+ */
 export const FOLDER_MODULE = {
+  basics: 0,
   labs: 1,
   fortran: 3,
   projects: 4,

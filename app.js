@@ -4,11 +4,11 @@
 /* ===== pieces/07-manifest.snapshot.js ===== */
 /* ============================================================================
  * 07-manifest.snapshot.js — 构建期自动生成，请勿手改（运行 npm run build 覆盖）
- * 内容快照：28 课。fetch('manifest.json') 失败时用它兜底。
+ * 内容快照：34 课。fetch('manifest.json') 失败时用它兜底。
  * ==========================================================================*/
 (function () {
   'use strict';
-  window.CPL_MANIFEST_SNAPSHOT = {"schema":1,"generatedAt":"2026-10-14T17:11:28.883Z","count":28,"lessons":[{"id":"appendix-a-concept-cards","module":6,"week":1,"title":"附录 A · 概念卡片总表","subtitle":"把所有「必须内化」的概念压成可检索、可校验、可导出的卡片","tags":["appendix","concept-card","anki","index","audit"],"folder":"meta","file":"content/meta/appendix-a-concept-cards.js","fingerprint":"ac60f299","bytes":32676},{"id":"appendix-b-assessment","module":6,"week":1,"title":"附录 B · 自查清单与验收标准","subtitle":"把「我学会了」变成可以被打分的证据：每条验收都指向一个能测的量","tags":["appendix","assessment","rubric","self-check"],"folder":"meta","file":"content/meta/appendix-b-assessment.js","fingerprint":"aa5d9f40","bytes":29276},{"id":"lab-01-complexity-memory","module":1,"week":1,"title":"复杂度与内存模型","subtitle":"先估操作数、再看内存：判断一段代码在这台机器上还行不行","tags":["big-O","memory","cache","locality"],"folder":"labs","file":"content/labs/lab-01-complexity-memory.js","fingerprint":"d83939fc","bytes":19886},{"id":"lab-05-python-numpy","module":2,"week":1,"title":"Python 科学计算速查","subtitle":"ndarray 是「连续内存 + 元数据」：把循环换成向量化，把拷贝换成视图","tags":["numpy","vectorization","broadcast","view"],"folder":"labs","file":"content/labs/lab-05-python-numpy.js","fingerprint":"c77c72ec","bytes":23587},{"id":"lab-06-cpp-reading","module":2,"week":1,"title":"C++ 阅读能力","subtitle":"读懂别人的 C++：从声明读出所有权，从签名读出拷贝，从循环读出复杂度","tags":["cpp","raii","const-reference","stl"],"folder":"labs","file":"content/labs/lab-06-cpp-reading.js","fingerprint":"c8ec6ba3","bytes":22530},{"id":"lab-08-toolchain","module":2,"week":1,"title":"工具链：Linux / Git / venv / pytest / cProfile / Make / CMake","subtitle":"把「环境不确定」变成「可复现」：依赖锁定、二分定位、先测量再优化、增量构建","tags":["toolchain","git","pytest","cprofile","make","cmake"],"folder":"labs","file":"content/labs/lab-08-toolchain.js","fingerprint":"03f4c203","bytes":27841},{"id":"lab-09-ai-assisted","module":2,"week":1,"title":"AI 辅助的正确用法","subtitle":"生成很便宜、验证很贵：把 AI 用在「可验证的产出」上，而不是用在「看起来对」上","tags":["ai","verification","hallucination","workflow"],"folder":"labs","file":"content/labs/lab-09-ai-assisted.js","fingerprint":"99c011f6","bytes":24520},{"id":"module-06-anti-forgetting","module":6,"week":1,"title":"系统抗遗忘 · 项目锚点与间隔重复","subtitle":"忘记不是归零，是存档：把细节挂回项目，再按间隔把它取回来","tags":["anti-forgetting","spaced-repetition","anchor","feynman"],"folder":"meta","file":"content/meta/module-06-anti-forgetting.js","fingerprint":"6c86b25b","bytes":31247},{"id":"lab-02-numerical-error","module":1,"week":2,"title":"数值误差与稳定性","subtitle":"把「浮点不精确」这句空话换成可以预先估计的误差量级","tags":["ieee754","cancellation","kahan","condition-number"],"folder":"labs","file":"content/labs/lab-02-numerical-error.js","fingerprint":"8ed2b1c1","bytes":21714},{"id":"lab-03-convergence-boundary","module":1,"week":3,"title":"收敛阶与边界条件","subtitle":"用 log-log 斜率把「格式是几阶的」变成一个可以测出来的数","tags":["convergence","order","stability","boundary"],"folder":"labs","file":"content/labs/lab-03-convergence-boundary.js","fingerprint":"ba1ff15f","bytes":23833},{"id":"lab-04-parallel-debug","module":1,"week":4,"title":"并行范式与调试方法","subtitle":"并行不是把循环加个指令：先算加速比上限，再用确定性复现定位竞态","tags":["amdahl","openmp","mpi","race-condition"],"folder":"labs","file":"content/labs/lab-04-parallel-debug.js","fingerprint":"ae8cf4aa","bytes":25101},{"id":"lab-07-fortran-cheatsheet","module":2,"week":5,"title":"Fortran 基础速查","subtitle":"语法、kind、数组语义、I/O、编译参数——全部按「30 秒能查到」的标准整理","tags":["fortran","kind","array","gfortran"],"folder":"labs","file":"content/labs/lab-07-fortran-cheatsheet.js","fingerprint":"16aa4c20","bytes":23664},{"id":"week-05-fortran-basics","module":3,"week":5,"title":"Fortran 基础与现代特性","subtitle":"用 module + elemental + pure 写出能被编译器检查的计算物理代码","tags":["fortran","module","elemental","pure","kind"],"folder":"fortran","file":"content/fortran/week-05-fortran-basics.js","fingerprint":"fb8a3e5f","bytes":24632},{"id":"week-06-numerical-arrays","module":3,"week":6,"title":"数值方法与数组操作","subtitle":"allocatable、BLAS、掩码归约与蒙特卡洛：让数组运算既快又准","tags":["fortran","array","blas","monte-carlo","reduction"],"folder":"fortran","file":"content/fortran/week-06-numerical-arrays.js","fingerprint":"a113b3f9","bytes":26333},{"id":"week-07-performance-parallel","module":3,"week":7,"title":"性能、并行与 legacy 代码","subtitle":"先测量、再并行、最后才谈优化：OpenMP 归约、halo 交换与 legacy 改造策略","tags":["fortran","openmp","mpi","roofline","legacy"],"folder":"fortran","file":"content/fortran/week-07-performance-parallel.js","fingerprint":"8297960c","bytes":26997},{"id":"week-08-project-question","module":4,"week":8,"title":"项目知识整理 I · 物理问题是什么","subtitle":"把「我在算什么」压缩成别人能复现的三句话加一张参数表","tags":["project","dimensional-analysis","boundary-condition","buckingham-pi"],"folder":"projects","file":"content/projects/week-08-project-question.js","fingerprint":"ad2d754d","bytes":24657},{"id":"week-09-project-method","module":4,"week":9,"title":"项目知识整理 II · 数值方法与数据流","subtitle":"把「为什么不用别的」写成一张取舍表，把代码画成一条数据流","tags":["project","numerical-method","dataflow","architecture"],"folder":"projects","file":"content/projects/week-09-project-method.js","fingerprint":"97e18fe7","bytes":36701},{"id":"week-10-project-verification","module":4,"week":10,"title":"项目知识整理 III · 调试、性能与验证","subtitle":"把「我确定它是对的」变成一份可复现的测量记录","tags":["project","debug","profiling","convergence","verification"],"folder":"projects","file":"content/projects/week-10-project-verification.js","fingerprint":"f3d988a6","bytes":29848},{"id":"week-11-complexity-array-hash","module":5,"week":11,"title":"复杂度 · 数组 · 哈希表","subtitle":"把「量级判断」变成直觉，而不是查表","tags":["big-O","amortized","hash","array"],"folder":"cs-core","file":"content/cs-core/week-11-complexity-array-hash.js","fingerprint":"452660ad","bytes":16865},{"id":"week-12-linked-list-stack-queue","module":5,"week":12,"title":"链表 · 栈 · 队列 · 递归","subtitle":"同一份数据的四种接口：指针、LIFO、FIFO 与调用栈","tags":["linked-list","stack","queue","recursion"],"folder":"cs-core","file":"content/cs-core/week-12-linked-list-stack-queue.js","fingerprint":"aed0377f","bytes":26313},{"id":"week-13-tree-heap-trie","module":5,"week":13,"title":"树 · 堆 · 优先队列 · Trie · 并查集","subtitle":"层次结构：从遍历顺序到路径压缩","tags":["tree","bst","heap","trie","union-find"],"folder":"cs-core","file":"content/cs-core/week-13-tree-heap-trie.js","fingerprint":"586d1881","bytes":31302},{"id":"week-14-sort-binary-backtrack","module":5,"week":14,"title":"排序 · 二分 · 分治 · 回溯 · 贪心","subtitle":"把搜索空间剪到能算完为止","tags":["sorting","binary-search","divide-conquer","backtracking","greedy"],"folder":"cs-core","file":"content/cs-core/week-14-sort-binary-backtrack.js","fingerprint":"f257b17c","bytes":32992},{"id":"week-15-dp-graph","module":5,"week":15,"title":"动态规划 · 图算法","subtitle":"状态定义与最短路契约：DP 是 DAG 上的最短路","tags":["dynamic-programming","graph","dijkstra","bellman-ford","mst"],"folder":"cs-core","file":"content/cs-core/week-15-dp-graph.js","fingerprint":"7342bf14","bytes":32835},{"id":"week-16-system-design-1","module":5,"week":16,"title":"系统设计基础 I","subtitle":"可扩展性 · 负载均衡 · 缓存 · CDN · SQL/NoSQL · 消息队列","tags":["scalability","load-balancing","caching","cdn","nosql","message-queue","lru"],"folder":"cs-core","file":"content/cs-core/week-16-system-design-1.js","fingerprint":"261ab0ee","bytes":32212},{"id":"week-17-system-design-2","module":5,"week":17,"title":"系统设计基础 II","subtitle":"CAP · 一致性 · 微服务 · 分布式 · MapReduce · 限流 · 幂等","tags":["cap","consistency","microservices","distributed","mapreduce","rate-limiting","idempotency"],"folder":"cs-core","file":"content/cs-core/week-17-system-design-2.js","fingerprint":"5d15738e","bytes":31480},{"id":"week-18-os-network-db","module":5,"week":18,"title":"OS / 网络 / 数据库速览","subtitle":"进程线程 · 内存 · 文件系统 · TCP/IP · HTTP · DNS · TLS · 索引 · 事务","tags":["os","memory","filesystem","tcp","http","dns","tls","index","transaction"],"folder":"cs-core","file":"content/cs-core/week-18-os-network-db.js","fingerprint":"dacb999b","bytes":31957},{"id":"week-19-concurrency-performance","module":5,"week":19,"title":"并发 · 性能 · 综合复习","subtitle":"线程 · 锁 · 无锁 · Actor · MapReduce · 性能分析 · 知识体系梳理","tags":["concurrency","lock","lock-free","actor","mapreduce","performance","amdahl","review"],"folder":"cs-core","file":"content/cs-core/week-19-concurrency-performance.js","fingerprint":"20ab1a96","bytes":33570},{"id":"user-example-lesson","module":7,"week":99,"title":"自定义课程示例（复制我）","subtitle":"纯笔记形式的内置课程模板","tags":["自定义","示例"],"folder":"user","file":"content/user/example-lesson.js","fingerprint":"f17ddaa9","bytes":7959}]};
+  window.CPL_MANIFEST_SNAPSHOT = {"schema":1,"generatedAt":"2026-10-15T05:23:48.380Z","count":34,"lessons":[{"id":"basics-01-what-is-a-program","module":0,"week":0.5,"title":"程序是什么","subtitle":"从一行代码到屏幕上的结果：把每一步都看清楚","tags":["程序","print","执行顺序","字符串","注释"],"folder":"basics","file":"content/basics/basics-01-what-is-a-program.js","fingerprint":"011b3343","bytes":15743},{"id":"basics-02-variables","module":0,"week":0.6,"title":"变量与数据类型","subtitle":"给值起名字：把中间结果存下来反复用","tags":["变量","数据类型","赋值"],"folder":"basics","file":"content/basics/basics-02-variables.js","fingerprint":"b6a49dec","bytes":31849},{"id":"basics-03-conditions","module":0,"week":0.7,"title":"条件判断","subtitle":"让程序在不同情况下做不同的事","tags":["if","条件","布尔"],"folder":"basics","file":"content/basics/basics-03-conditions.js","fingerprint":"0b7c020f","bytes":35080},{"id":"basics-04-loops","module":0,"week":0.8,"title":"循环","subtitle":"让同一段代码重复执行，次数由你控制","tags":["for","while","循环","range"],"folder":"basics","file":"content/basics/basics-04-loops.js","fingerprint":"dba49c9b","bytes":29562},{"id":"basics-05-functions","module":0,"week":0.85,"title":"函数","subtitle":"把一段代码打包成有名字、可反复调用的东西","tags":["函数","参数","返回值","作用域"],"folder":"basics","file":"content/basics/basics-05-functions.js","fingerprint":"22c255f6","bytes":34745},{"id":"basics-06-lists","module":0,"week":0.9,"title":"列表与下标","subtitle":"一格一格地装数据：编号从 0 开始，这件事要记牢","tags":["列表","下标","索引","切片"],"folder":"basics","file":"content/basics/basics-06-lists.js","fingerprint":"8e88fa63","bytes":44248},{"id":"appendix-a-concept-cards","module":6,"week":1,"title":"附录 A · 概念卡片总表","subtitle":"把所有「必须内化」的概念压成可检索、可校验、可导出的卡片","tags":["appendix","concept-card","anki","index","audit"],"folder":"meta","file":"content/meta/appendix-a-concept-cards.js","fingerprint":"ac60f299","bytes":32676},{"id":"appendix-b-assessment","module":6,"week":1,"title":"附录 B · 自查清单与验收标准","subtitle":"把「我学会了」变成可以被打分的证据：每条验收都指向一个能测的量","tags":["appendix","assessment","rubric","self-check"],"folder":"meta","file":"content/meta/appendix-b-assessment.js","fingerprint":"aa5d9f40","bytes":29276},{"id":"lab-01-complexity-memory","module":1,"week":1,"title":"复杂度与内存模型","subtitle":"先估操作数、再看内存：判断一段代码在这台机器上还行不行","tags":["big-O","memory","cache","locality"],"folder":"labs","file":"content/labs/lab-01-complexity-memory.js","fingerprint":"d83939fc","bytes":19886},{"id":"lab-05-python-numpy","module":2,"week":1,"title":"Python 科学计算速查","subtitle":"ndarray 是「连续内存 + 元数据」：把循环换成向量化，把拷贝换成视图","tags":["numpy","vectorization","broadcast","view"],"folder":"labs","file":"content/labs/lab-05-python-numpy.js","fingerprint":"c77c72ec","bytes":23587},{"id":"lab-06-cpp-reading","module":2,"week":1,"title":"C++ 阅读能力","subtitle":"读懂别人的 C++：从声明读出所有权，从签名读出拷贝，从循环读出复杂度","tags":["cpp","raii","const-reference","stl"],"folder":"labs","file":"content/labs/lab-06-cpp-reading.js","fingerprint":"c8ec6ba3","bytes":22530},{"id":"lab-08-toolchain","module":2,"week":1,"title":"工具链：Linux / Git / venv / pytest / cProfile / Make / CMake","subtitle":"把「环境不确定」变成「可复现」：依赖锁定、二分定位、先测量再优化、增量构建","tags":["toolchain","git","pytest","cprofile","make","cmake"],"folder":"labs","file":"content/labs/lab-08-toolchain.js","fingerprint":"03f4c203","bytes":27841},{"id":"lab-09-ai-assisted","module":2,"week":1,"title":"AI 辅助的正确用法","subtitle":"生成很便宜、验证很贵：把 AI 用在「可验证的产出」上，而不是用在「看起来对」上","tags":["ai","verification","hallucination","workflow"],"folder":"labs","file":"content/labs/lab-09-ai-assisted.js","fingerprint":"99c011f6","bytes":24520},{"id":"module-06-anti-forgetting","module":6,"week":1,"title":"系统抗遗忘 · 项目锚点与间隔重复","subtitle":"忘记不是归零，是存档：把细节挂回项目，再按间隔把它取回来","tags":["anti-forgetting","spaced-repetition","anchor","feynman"],"folder":"meta","file":"content/meta/module-06-anti-forgetting.js","fingerprint":"6c86b25b","bytes":31247},{"id":"lab-02-numerical-error","module":1,"week":2,"title":"数值误差与稳定性","subtitle":"把「浮点不精确」这句空话换成可以预先估计的误差量级","tags":["ieee754","cancellation","kahan","condition-number"],"folder":"labs","file":"content/labs/lab-02-numerical-error.js","fingerprint":"8ed2b1c1","bytes":21714},{"id":"lab-03-convergence-boundary","module":1,"week":3,"title":"收敛阶与边界条件","subtitle":"用 log-log 斜率把「格式是几阶的」变成一个可以测出来的数","tags":["convergence","order","stability","boundary"],"folder":"labs","file":"content/labs/lab-03-convergence-boundary.js","fingerprint":"ba1ff15f","bytes":23833},{"id":"lab-04-parallel-debug","module":1,"week":4,"title":"并行范式与调试方法","subtitle":"并行不是把循环加个指令：先算加速比上限，再用确定性复现定位竞态","tags":["amdahl","openmp","mpi","race-condition"],"folder":"labs","file":"content/labs/lab-04-parallel-debug.js","fingerprint":"ae8cf4aa","bytes":25101},{"id":"lab-07-fortran-cheatsheet","module":2,"week":5,"title":"Fortran 基础速查","subtitle":"语法、kind、数组语义、I/O、编译参数——全部按「30 秒能查到」的标准整理","tags":["fortran","kind","array","gfortran"],"folder":"labs","file":"content/labs/lab-07-fortran-cheatsheet.js","fingerprint":"16aa4c20","bytes":23664},{"id":"week-05-fortran-basics","module":3,"week":5,"title":"Fortran 基础与现代特性","subtitle":"用 module + elemental + pure 写出能被编译器检查的计算物理代码","tags":["fortran","module","elemental","pure","kind"],"folder":"fortran","file":"content/fortran/week-05-fortran-basics.js","fingerprint":"fb8a3e5f","bytes":24632},{"id":"week-06-numerical-arrays","module":3,"week":6,"title":"数值方法与数组操作","subtitle":"allocatable、BLAS、掩码归约与蒙特卡洛：让数组运算既快又准","tags":["fortran","array","blas","monte-carlo","reduction"],"folder":"fortran","file":"content/fortran/week-06-numerical-arrays.js","fingerprint":"a113b3f9","bytes":26333},{"id":"week-07-performance-parallel","module":3,"week":7,"title":"性能、并行与 legacy 代码","subtitle":"先测量、再并行、最后才谈优化：OpenMP 归约、halo 交换与 legacy 改造策略","tags":["fortran","openmp","mpi","roofline","legacy"],"folder":"fortran","file":"content/fortran/week-07-performance-parallel.js","fingerprint":"8297960c","bytes":26997},{"id":"week-08-project-question","module":4,"week":8,"title":"项目知识整理 I · 物理问题是什么","subtitle":"把「我在算什么」压缩成别人能复现的三句话加一张参数表","tags":["project","dimensional-analysis","boundary-condition","buckingham-pi"],"folder":"projects","file":"content/projects/week-08-project-question.js","fingerprint":"ad2d754d","bytes":24657},{"id":"week-09-project-method","module":4,"week":9,"title":"项目知识整理 II · 数值方法与数据流","subtitle":"把「为什么不用别的」写成一张取舍表，把代码画成一条数据流","tags":["project","numerical-method","dataflow","architecture"],"folder":"projects","file":"content/projects/week-09-project-method.js","fingerprint":"97e18fe7","bytes":36701},{"id":"week-10-project-verification","module":4,"week":10,"title":"项目知识整理 III · 调试、性能与验证","subtitle":"把「我确定它是对的」变成一份可复现的测量记录","tags":["project","debug","profiling","convergence","verification"],"folder":"projects","file":"content/projects/week-10-project-verification.js","fingerprint":"f3d988a6","bytes":29848},{"id":"week-11-complexity-array-hash","module":5,"week":11,"title":"复杂度 · 数组 · 哈希表","subtitle":"把「量级判断」变成直觉，而不是查表","tags":["big-O","amortized","hash","array"],"folder":"cs-core","file":"content/cs-core/week-11-complexity-array-hash.js","fingerprint":"452660ad","bytes":16865},{"id":"week-12-linked-list-stack-queue","module":5,"week":12,"title":"链表 · 栈 · 队列 · 递归","subtitle":"同一份数据的四种接口：指针、LIFO、FIFO 与调用栈","tags":["linked-list","stack","queue","recursion"],"folder":"cs-core","file":"content/cs-core/week-12-linked-list-stack-queue.js","fingerprint":"aed0377f","bytes":26313},{"id":"week-13-tree-heap-trie","module":5,"week":13,"title":"树 · 堆 · 优先队列 · Trie · 并查集","subtitle":"层次结构：从遍历顺序到路径压缩","tags":["tree","bst","heap","trie","union-find"],"folder":"cs-core","file":"content/cs-core/week-13-tree-heap-trie.js","fingerprint":"586d1881","bytes":31302},{"id":"week-14-sort-binary-backtrack","module":5,"week":14,"title":"排序 · 二分 · 分治 · 回溯 · 贪心","subtitle":"把搜索空间剪到能算完为止","tags":["sorting","binary-search","divide-conquer","backtracking","greedy"],"folder":"cs-core","file":"content/cs-core/week-14-sort-binary-backtrack.js","fingerprint":"f257b17c","bytes":32992},{"id":"week-15-dp-graph","module":5,"week":15,"title":"动态规划 · 图算法","subtitle":"状态定义与最短路契约：DP 是 DAG 上的最短路","tags":["dynamic-programming","graph","dijkstra","bellman-ford","mst"],"folder":"cs-core","file":"content/cs-core/week-15-dp-graph.js","fingerprint":"7342bf14","bytes":32835},{"id":"week-16-system-design-1","module":5,"week":16,"title":"系统设计基础 I","subtitle":"可扩展性 · 负载均衡 · 缓存 · CDN · SQL/NoSQL · 消息队列","tags":["scalability","load-balancing","caching","cdn","nosql","message-queue","lru"],"folder":"cs-core","file":"content/cs-core/week-16-system-design-1.js","fingerprint":"261ab0ee","bytes":32212},{"id":"week-17-system-design-2","module":5,"week":17,"title":"系统设计基础 II","subtitle":"CAP · 一致性 · 微服务 · 分布式 · MapReduce · 限流 · 幂等","tags":["cap","consistency","microservices","distributed","mapreduce","rate-limiting","idempotency"],"folder":"cs-core","file":"content/cs-core/week-17-system-design-2.js","fingerprint":"5d15738e","bytes":31480},{"id":"week-18-os-network-db","module":5,"week":18,"title":"OS / 网络 / 数据库速览","subtitle":"进程线程 · 内存 · 文件系统 · TCP/IP · HTTP · DNS · TLS · 索引 · 事务","tags":["os","memory","filesystem","tcp","http","dns","tls","index","transaction"],"folder":"cs-core","file":"content/cs-core/week-18-os-network-db.js","fingerprint":"dacb999b","bytes":31957},{"id":"week-19-concurrency-performance","module":5,"week":19,"title":"并发 · 性能 · 综合复习","subtitle":"线程 · 锁 · 无锁 · Actor · MapReduce · 性能分析 · 知识体系梳理","tags":["concurrency","lock","lock-free","actor","mapreduce","performance","amdahl","review"],"folder":"cs-core","file":"content/cs-core/week-19-concurrency-performance.js","fingerprint":"20ab1a96","bytes":33570},{"id":"user-example-lesson","module":7,"week":99,"title":"自定义课程示例（复制我）","subtitle":"纯笔记形式的内置课程模板","tags":["自定义","示例"],"folder":"user","file":"content/user/example-lesson.js","fingerprint":"f17ddaa9","bytes":7959}]};
 })();
 
 /* ===== pieces/07-syllabus.snapshot.js ===== */
@@ -18,7 +18,7 @@
  * ==========================================================================*/
 (function () {
   'use strict';
-  window.CPL_SYLLABUS_SNAPSHOT = {"schema":1,"title":"计算物理 × 计算机科学 · 互动学习平台","weeks":27,"philosophy":{"concept":"概念性知识必须内化：复杂度、内存模型、数值误差、稳定性、收敛阶、并行范式、边界条件、调试方法。判据是能自己推回来。","tool":"工具性细节知道存在、会查即可：API、语法、库函数、编译参数。判据是 30 秒能查到。","antiForgetting":"忘记不是归零，是存档：项目锚点 + 代码库 + Anki 间隔重复 + 费曼输出。"},"modules":[{"id":1,"title":"概念性知识内化","weeks":[1,4],"summary":"把四类必须内化的概念——计算复杂度与内存模型、浮点误差与稳定性、收敛阶与边界条件、并行范式与调试——用你自己的科研代码练到手。","outcome":"一份「概念卡片」，每张卡都用一具体科研代码片段举例。"},{"id":2,"title":"工具性细节速查","weeks":[1,27],"summary":"每天 15 分钟：Python 科学计算、C++ 阅读、现代 Fortran 语法、工具链（Linux/Git/venv/pytest/cProfile/Makefile/CMake）、AI 辅助的正确用法。","outcome":"一份可检索的个人速查库；每节课附「查文档挑战」。"},{"id":3,"title":"Fortran 计算物理编程","weeks":[5,7],"summary":"现代 Fortran 与 legacy 代码的阅读、修改、性能优化；数组语义、BLAS/LAPACK 调用、列主序内存布局、OpenMP/MPI/Coarray、与 C/Python 互操作。","outcome":"能读懂并改造一段真实的计算物理 Fortran 代码，并能解释其性能特征。"},{"id":4,"title":"计算物理项目知识整理","weeks":[8,10],"summary":"把每个科研项目（PRB/CPC 类工作）整理成 7 问知识文档：物理问题、数值方法取舍、代码架构与数据流、最大 bug 的定位过程、性能瓶颈与优化、正确性验证、如果重做会改什么。","outcome":"每个项目一页可导出的知识整理文档。"},{"id":5,"title":"计算机科学核心知识","weeks":[11,19],"summary":"CIU 式清单推进：复杂度与基础数据结构 → 链表栈队列递归 → 树堆 Trie 并查集 → 排序二分分治回溯贪心 → DP 与图 → 系统设计 I/II → OS/网络/数据库 → 并发与性能。","outcome":"每个主题一个交互式 demo、一组练习题、一套 Anki 卡片。"},{"id":6,"title":"系统抗遗忘","weeks":[1,27],"summary":"把细节挂在项目锚点上，建立自己的 snippets 与笔记库，每周 10 分钟间隔重复，用费曼输出检验真正掌握。","outcome":"可持续运转的复习机制：每周自动生成 5 张基于本周代码与错题的 Anki 卡。"},{"id":7,"title":"用户自定义学习内容","weeks":[1,27],"summary":"在浏览器里创建、编辑、保存、导出、导入你自己的知识卡片与课程模块；内容存在本机（localStorage/IndexedDB），也可按模板贡献到仓库。","outcome":"你自己的课程出现在课表里，可编辑、删除、排序，并可一键备份为 JSON。"}],"lessonStructure":[{"key":"objectives","label":"学习目标","desc":"学完能做什么，用可检验的动词描述。"},{"key":"concepts","label":"核心概念","desc":"必须内化的概念性知识，附自检问题。"},{"key":"tools","label":"工具速查","desc":"知道存在、会查即可的 API/语法/命令。"},{"key":"demo","label":"交互式 demo","desc":"可在浏览器里调参数、看曲线、做参数扫描。"},{"key":"exercise","label":"代码练习","desc":"浏览器内运行（Python/NumPy 完整支持）。"},{"key":"tests","label":"自动测试","desc":"断言题目要点，跑通即通过。"},{"key":"aiPrompts","label":"AI 助教引导","desc":"只提问不给答案，逼你自己想清楚。"},{"key":"anki","label":"Anki 卡片","desc":"可直接导出的问答卡，含 .apkg/CSV。"},{"key":"reading","label":"延伸阅读","desc":"教材章节与论文，标注读哪一节。"},{"key":"checklist","label":"完成自检","desc":"勾完即视为掌握，进度自动记录。"}]};
+  window.CPL_SYLLABUS_SNAPSHOT = {"schema":1,"title":"计算物理 × 计算机科学 · 互动学习平台","weeks":27,"philosophy":{"concept":"概念性知识必须内化：复杂度、内存模型、数值误差、稳定性、收敛阶、并行范式、边界条件、调试方法。判据是能自己推回来。","tool":"工具性细节知道存在、会查即可：API、语法、库函数、编译参数。判据是 30 秒能查到。","antiForgetting":"忘记不是归零，是存档：项目锚点 + 代码库 + Anki 间隔重复 + 费曼输出。"},"modules":[{"id":0,"title":"零基础入门：从没写过代码开始","weeks":[0,0],"summary":"假设你此前从未写过一行代码、也不知道「程序」是什么。六节课把后面 27 周要用到的最小语言基础补齐：程序与执行、变量与类型、条件、循环、函数、列表与下标。每个名词第一次出现时就地解释清楚，配可在浏览器里直接运行的练习。","outcome":"能读懂并写出含变量、条件、循环、函数、列表的一小段 Python 代码，并知道每一行的作用。","isPrerequisite":true},{"id":1,"title":"概念性知识内化","weeks":[1,4],"summary":"把四类必须内化的概念——计算复杂度与内存模型、浮点误差与稳定性、收敛阶与边界条件、并行范式与调试——用你自己的科研代码练到手。","outcome":"一份「概念卡片」，每张卡都用一具体科研代码片段举例。"},{"id":2,"title":"工具性细节速查","weeks":[1,27],"summary":"每天 15 分钟：Python 科学计算、C++ 阅读、现代 Fortran 语法、工具链（Linux/Git/venv/pytest/cProfile/Makefile/CMake）、AI 辅助的正确用法。","outcome":"一份可检索的个人速查库；每节课附「查文档挑战」。"},{"id":3,"title":"Fortran 计算物理编程","weeks":[5,7],"summary":"现代 Fortran 与 legacy 代码的阅读、修改、性能优化；数组语义、BLAS/LAPACK 调用、列主序内存布局、OpenMP/MPI/Coarray、与 C/Python 互操作。","outcome":"能读懂并改造一段真实的计算物理 Fortran 代码，并能解释其性能特征。"},{"id":4,"title":"计算物理项目知识整理","weeks":[8,10],"summary":"把每个科研项目（PRB/CPC 类工作）整理成 7 问知识文档：物理问题、数值方法取舍、代码架构与数据流、最大 bug 的定位过程、性能瓶颈与优化、正确性验证、如果重做会改什么。","outcome":"每个项目一页可导出的知识整理文档。"},{"id":5,"title":"计算机科学核心知识","weeks":[11,19],"summary":"CIU 式清单推进：复杂度与基础数据结构 → 链表栈队列递归 → 树堆 Trie 并查集 → 排序二分分治回溯贪心 → DP 与图 → 系统设计 I/II → OS/网络/数据库 → 并发与性能。","outcome":"每个主题一个交互式 demo、一组练习题、一套 Anki 卡片。"},{"id":6,"title":"系统抗遗忘","weeks":[1,27],"summary":"把细节挂在项目锚点上，建立自己的 snippets 与笔记库，每周 10 分钟间隔重复，用费曼输出检验真正掌握。","outcome":"可持续运转的复习机制：每周自动生成 5 张基于本周代码与错题的 Anki 卡。"},{"id":7,"title":"用户自定义学习内容","weeks":[1,27],"summary":"在浏览器里创建、编辑、保存、导出、导入你自己的知识卡片与课程模块；内容存在本机（localStorage/IndexedDB），也可按模板贡献到仓库。","outcome":"你自己的课程出现在课表里，可编辑、删除、排序，并可一键备份为 JSON。"}],"lessonStructure":[{"key":"objectives","label":"学习目标","desc":"学完能做什么，用可检验的动词描述。"},{"key":"concepts","label":"核心概念","desc":"必须内化的概念性知识，附自检问题。"},{"key":"tools","label":"工具速查","desc":"知道存在、会查即可的 API/语法/命令。"},{"key":"demo","label":"交互式 demo","desc":"可在浏览器里调参数、看曲线、做参数扫描。"},{"key":"exercise","label":"代码练习","desc":"浏览器内运行（Python/NumPy 完整支持）。"},{"key":"tests","label":"自动测试","desc":"断言题目要点，跑通即通过。"},{"key":"aiPrompts","label":"AI 助教引导","desc":"只提问不给答案，逼你自己想清楚。"},{"key":"anki","label":"Anki 卡片","desc":"可直接导出的问答卡，含 .apkg/CSV。"},{"key":"reading","label":"延伸阅读","desc":"教材章节与论文，标注读哪一节。"},{"key":"checklist","label":"完成自检","desc":"勾完即视为掌握，进度自动记录。"}]};
 })();
 
 /* ===== pieces/00-core.js ===== */
@@ -1947,19 +1947,58 @@
   const SYMBOLS = {
     cdot: '⋅', cdots: '⋯', ldots: '…', dots: '…', vdots: '⋮', ddots: '⋱',
     times: '×', div: '÷', pm: '±', mp: '∓', ast: '∗', star: '⋆', circ: '∘',
-    bullet: '∙', oplus: '⊕', otimes: '⊗', cap: '∩', cup: '∪', setminus: '∖',
-    subset: '⊂', supset: '⊃', subseteq: '⊆', supseteq: '⊇', in: '∈', notin: '∉',
-    ni: '∋', forall: '∀', exists: '∃', nexists: '∄', emptyset: '∅', varnothing: '∅',
-    infty: '∞', partial: '∂', nabla: '∇', propto: '∝', sim: '∼', simeq: '≃',
-    approx: '≈', cong: '≅', equiv: '≡', neq: '≠', ne: '≠', leq: '≤', le: '≤',
-    geq: '≥', ge: '≥', ll: '≪', gg: '≫', to: '→', rightarrow: '→', leftarrow: '←',
-    leftrightarrow: '↔', Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔',
-    mapsto: '↦', implies: '⟹', iff: '⟺', uparrow: '↑', downarrow: '↓',
+    bullet: '∙', oplus: '⊕', ominus: '⊖', otimes: '⊗', oslash: '⊘', odot: '⊙',
+    cap: '∩', cup: '∪', sqcap: '⊓', sqcup: '⊔', uplus: '⊎', setminus: '∖',
+    subset: '⊂', supset: '⊃', subseteq: '⊆', supseteq: '⊇', nsubset: '⊄',
+    in: '∈', notin: '∉', ni: '∋', owns: '∋',
+    forall: '∀', exists: '∃', nexists: '∄', emptyset: '∅', varnothing: '∅',
+    infty: '∞', partial: '∂', nabla: '∇', propto: '∝',
+    sim: '∼', simeq: '≃', approx: '≈', cong: '≅', equiv: '≡', neq: '≠', ne: '≠',
+    leq: '≤', le: '≤', geq: '≥', ge: '≥', ll: '≪', gg: '≫',
+    // 近似比较：数值收敛分析里极常用（"误差随步长按 ≲ h² 下降"）
+    lesssim: '≲', gtrsim: '≳', lessapprox: '⪅', gtrapprox: '⪆',
+    prec: '≺', succ: '≻', preceq: '⪯', succeq: '⪰',
+    to: '→', rightarrow: '→', leftarrow: '←', leftrightarrow: '↔',
+    Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔',
+    longrightarrow: '⟶', longleftarrow: '⟵', Longrightarrow: '⟹',
+    Longleftarrow: '⟸', Longleftrightarrow: '⟺', implies: '⟹', iff: '⟺',
+    mapsto: '↦', longmapsto: '⟼', uparrow: '↑', downarrow: '↓', updownarrow: '↕',
     prime: '′', angle: '∠', perp: '⊥', parallel: '∥', therefore: '∴', because: '∵',
     aleph: 'ℵ', hbar: 'ℏ', ell: 'ℓ', Re: 'ℜ', Im: 'ℑ', wp: '℘',
     langle: '⟨', rangle: '⟩', lceil: '⌈', rceil: '⌉', lfloor: '⌊', rfloor: '⌋',
-    lVert: '‖', rVert: '‖', vert: '|', Vert: '‖', backslash: '\\',
-    quad: '\u2003', qquad: '\u2003\u2003', ',': '\u2009', ';': '\u2005', ':': '\u2005', '!': '',
+    // 注意 | 与 ‖ 的区别（这条以前搞错过，渲染出来就是一个竖线的差别）：
+    //   裸 |      → 单竖线，绝对值的随意写法
+    //   \| 与 \Vert → 双竖线，范数
+    lVert: '‖', rVert: '‖', vert: '|', Vert: '‖',
+    lvert: '|', rvert: '|', lbrace: '{', rbrace: '}',
+    backslash: '\\', '\\|': '‖', '|': '|',
+    quad: '\u2003', qquad: '\u2003\u2003', '\\,': '\u2009', '\\;': '\u2005', '\\:': '\u2005', '\\!': '',
+  };
+
+  /**
+   * \left / \right 后面跟的定界符 → [左形, 右形]，且应渲染为可伸缩（stretchy）。
+   *
+   * 为什么必须单独一张表：\left\| 如果走普通符号查找，
+   * `\|` 会被拆成单个 `|`，结果双竖线变成单竖线（真实出现过的渲染错误）。
+   */
+  const DELIM_MAP = {
+    '(': ['(', ')'], ')': [')', ')'],
+    '[': ['[', ']'], ']': [']', ']'],
+    '{': ['{', '}'], '}': ['}', '}'],
+    // 注意 | 与 ‖ 的区别：
+    //   裸 |   → 单竖线（\left| x \right| 是绝对值）
+    //   \| 与 \Vert → 双竖线（\left\| x \right\| 是范数）
+    // 这里必须分开写，否则范数会悄悄变成单竖线。
+    '|': ['|', '|'], '\\|': ['‖', '‖'], '‖': ['‖', '‖'], '.': ['', ''], '/': ['/', '/'],
+    '<': ['⟨', '⟩'], '>': ['⟨', '⟩'],
+    lbrace: ['{', '}'], rbrace: ['}', '}'],
+    langle: ['⟨', '⟩'], rangle: ['⟩', '⟩'],
+    vert: ['|', '|'], Vert: ['‖', '‖'],
+    lvert: ['|', '|'], rvert: ['|', '|'],
+    lVert: ['‖', '‖'], rVert: ['‖', '‖'],
+    lfloor: ['⌊', '⌋'], rfloor: ['⌋', '⌋'],
+    lceil: ['⌈', '⌉'], rceil: ['⌉', '⌉'],
+    backslash: ['\\', '\\'],
   };
 
   const BIG_OPS = {
@@ -2013,9 +2052,16 @@
         let name = '';
         while (j < n && /[a-zA-Z]/.test(src[j])) name += src[j++];
         if (!name) {
-          // 单字符命令，如 \, \; \! \:
-          name = src[j] || '';
+          // 单字符命令，如 \, \; \! \: \| \%
+          // 保留反斜杠前缀，才能在语义上把 \|（范数双竖线）
+          // 与裸 |（绝对值单竖线）区分开——两者必须渲染成不同的符号。
+          const sym = src[j] || '';
           j++;
+          if (sym) {
+            tokens.push({ type: 'command', value: '\\' + sym });
+            i = j;
+            continue;
+          }
         }
         tokens.push({ type: 'command', value: name });
         i = j;
@@ -2066,10 +2112,69 @@
     const peek = () => tokens[pos];
     const next = () => tokens[pos++];
 
+    /** 读 \left / \right / \big 后面紧跟的那个定界符（文本形式或命令形式）。 */
+    function readDelimiter(isRight) {
+      const d = peek();
+      if (!d) return '';
+      if (d.type === 'command') {
+        const dm = DELIM_MAP[d.value];
+        if (dm) {
+          next();
+          return isRight ? dm[1] : dm[0];
+        }
+        // tokenizer 现在把 \{ \} 保留为带反斜杠的命令形式
+        if (d.value === '{' || d.value === '}' || d.value === '\\{' || d.value === '\\}') {
+          next();
+          return d.value.slice(-1);
+        }
+        return '';
+      }
+      if (d.type === 'text') {
+        const raw = d.value.trim();
+        if (raw && DELIM_MAP[raw]) {
+          next();
+          return isRight ? DELIM_MAP[raw][1] : DELIM_MAP[raw][0];
+        }
+        // 未收录的单字符定界符：原样使用
+        if (raw && raw.length === 1 && !/[a-zA-Z0-9]/.test(raw)) {
+          next();
+          return raw;
+        }
+      }
+      return '';
+    }
+
+    /**
+     * \left ... \right 必须作为**整体**解析。
+     *
+     * 如果让它们各自变成一个原子，会出两个问题：
+     *   ① \right\|_2 的下标会挂到整个表达式上，而不是右定界符上；
+     *   ② 左括号与右括号之间没有共同的"可伸缩容器"，括号无法随分式长高。
+     * 注意返回值**不**处理 ^ _：脚本由调用方（parseGroup / parseRow）统一挂。
+     */
+    function parseLeftRight() {
+      next(); // 吃掉 \left
+      const open = readDelimiter(false);
+      const inner = parseRow(false, { stopAtRight: true });
+      let close = '';
+      if (peek() && peek().type === 'command' && peek().value === 'right') {
+        next();
+        close = readDelimiter(true);
+      }
+      const children = [];
+      if (open) children.push({ kind: 'delim', text: open });
+      for (const c of inner.children || []) children.push(c);
+      if (close) children.push({ kind: 'delim', text: close });
+      return { kind: 'row', children };
+    }
+
     function parseGroup() {
-      // 读取一个"原子"：{...} 组、单个 token、或命令
+      // 读取一个"原子"：{...} 组、\left...\right、单个 token、或命令
       const t = peek();
       if (!t) return { kind: 'row', children: [] };
+      if (t.type === 'command' && (t.value === 'left' || t.value === 'right')) {
+        return parseLeftRight();
+      }
       if (t.type === 'lbrace') {
         next();
         const node = parseRow(true);
@@ -2225,21 +2330,31 @@
           return { kind: 'text', text: plain.replace(/[A-Z]/g, (c) => map[c] || c) };
         }
 
-        if (name === 'left' || name === 'right' || name === 'big' || name === 'Big' || name === 'bigg' || name === 'Bigg') {
-          // 定界符命令：把紧跟的定界符符号吃掉
-          const d = peek();
-          if (d && d.type === 'text') {
-            const raw = d.value.trim();
-            if (raw && /^[()\[\]|.\\/<>]/.test(raw)) {
-              next();
-              return { kind: 'text', text: DELIMS[raw] !== undefined ? DELIMS[raw] : raw };
-            }
-          }
-          if (d && d.type === 'command' && (d.value === '{' || d.value === '}' || d.value === 'lVert' || d.value === 'rVert' || d.value === 'vert' || d.value === 'Vert')) {
-            next();
-            return { kind: 'text', text: SYMBOLS[d.value] || '' };
-          }
-          return { kind: 'row', children: [] };
+        // 字体命令：参数照常渲染，只改字型。
+        // 这些命令以前没实现，会被降级成字面文字（页面上直接显示 "texttt"）。
+        if (name === 'texttt' || name === 'textrm' || name === 'textsf' || name === 'textnormal') {
+          return { kind: 'styled', variant: 'upright', body: parseGroup() };
+        }
+        if (name === 'mathcal' || name === 'mathscr' || name === 'mathfrak') {
+          // 花体/哥特体：MathML 用 mathvariant 表达，字体缺失时浏览器会自动回退，
+          // 也不会像"显示成 mathcal 字样"那样明显出错。
+          return { kind: 'styled', variant: name === 'mathfrak' ? 'fraktur' : 'script', body: parseGroup() };
+        }
+        if (name === 'bm' || name === 'boldsymbol' || name === 'mathbf') {
+          return { kind: 'styled', variant: 'bold', body: parseGroup() };
+        }
+
+        // \left...\right 由 parseRow / parseGroup 统一整体处理（见 parseLeftRight）。
+        // 这里若还留一个分支，会让左括号被单独吃掉，右括号随后变成孤立原子。
+        if (name === 'right') {
+          const d = readDelimiter(true);
+          return d ? { kind: 'delim', text: d } : { kind: 'row', children: [] };
+        }
+
+        // 上下花括号：\underbrace{...}_{说明} —— 算法复杂度与数值推导里很常见
+        if (name === 'underbrace' || name === 'overbrace' || name === 'underbracket' || name === 'overbracket') {
+          const body = parseGroup();
+          return { kind: name.indexOf('over') === 0 ? 'overbrace' : 'underbrace', body };
         }
 
         if (name === '\\') {
@@ -2311,14 +2426,22 @@
       return Boolean(node && node.kind === 'row' && (!node.children || node.children.length === 0));
     }
 
-    function parseRow(stopAtBrace) {
+    function parseRow(stopAtBrace, opts = {}) {
       const children = [];
       while (pos < tokens.length) {
         const t = peek();
         if (stopAtBrace && t.type === 'rbrace') break;
+        // \left...\right 的收尾：由 parseLeftRight 自己消费 \right，
+        // 这里只是在遇到"孤立的 \right"时停下，避免把它当成普通原子。
+        if (opts.stopAtRight && t.type === 'command' && t.value === 'right') break;
         if (t.type === 'command' && t.value === 'end') break;
         if (t.type === 'command' && t.value === '\\') break;
         if (t.type === 'align') break;
+        if (t.type === 'command' && t.value === 'left') {
+          // 整体解析 + 挂脚标：\left( \frac{a}{b} \right)^2
+          children.push(attachScripts(parseLeftRight()));
+          continue;
+        }
         children.push(parseAtom());
       }
       return { kind: 'row', children };
@@ -2359,7 +2482,10 @@
     return `<mn>${esc(text)}</mn>`;
   }
   function mo(text, opts = {}) {
-    const stretchy = opts.stretchy === false ? ' stretchy="false"' : '';
+    // 注意：MathML 里 stretchy 默认为 true，但不同浏览器对"隐式伸缩"的支持不一致，
+    // 所以这里显式写出来。早先的条件写反了（只在 opts.stretchy === false 时输出），
+    // 结果所有定界符都被强制成不伸缩——括号不会随分式长高，这正是"公式没渲染对"的观感。
+    const stretchy = opts.stretchy === false ? ' stretchy="false"' : ' stretchy="true"';
     const form = opts.form ? ` form="${opts.form}"` : '';
     return `<mo${stretchy}${form}>${esc(text)}</mo>`;
   }
@@ -2382,6 +2508,10 @@
       case 'text': {
         const t = node.text;
         if (!t) return '';
+        // 纯空白：直接输出空格字符。
+        // 不能走下面的"逐字符拆成 <mo>"分支——MathML 里 <mo> 默认可伸缩，
+        // 浏览器会把空格拉伸成一个大间隙，公式看起来"散架"。
+        if (/^\s+$/.test(t)) return ' ';
         if (DIGITS.test(t)) return mn(t);
         if (IDENT.test(t) && t.length === 1) return mi(t, { upright: node.upright });
         // 短的连续字母（mc、dx、psi）按单字母拆分：
@@ -2395,11 +2525,25 @@
         // 混合内容：逐字符拆分，字母用 mi、数字用 mn、其余用 mo
         let out = '';
         for (const ch of t) {
+          // 空白直接输出：<mo> 默认可伸缩，浏览器会把空格拉成大间隙
+          if (/\s/.test(ch)) { out += ' '; continue; }
           if (/[0-9.]/.test(ch)) out += mn(ch);
           else if (/[A-Za-z]/.test(ch)) out += mi(ch, { upright: node.upright });
-          else out += mo(ch === '-' ? '−' : ch);
+          else out += mo(ch === '-' ? '−' : ch, { stretchy: false });
         }
         return row(out);
+      }
+
+      // \left( ... \right) 这类定界符：标记可伸缩，让浏览器按内容高度自动拉长
+      case 'delim':
+        if (!node.text) return '';
+        return mo(node.text, { stretchy: true });
+
+      // \underbrace{...}_{说明} / \overbrace{...}^{说明}
+      case 'underbrace':
+      case 'overbrace': {
+        const tag = node.kind === 'underbrace' ? 'munder' : 'mover';
+        return `<${tag}>${renderNode(node.body)}<mo stretchy="true">${node.kind === 'underbrace' ? '⏟' : '⏞'}</mo></${tag}>`;
       }
 
       case 'frac':
@@ -11249,6 +11393,217 @@
   // 注意：不在 'app:mounted' 里重复初始化。
   // 初始化由 99-main.js 的启动流程统一调用（顺序：目录 → 用户内容 → 渲染导航），
   // 否则会和 99-main.js 里的调用重复执行一次 writeIndex + syncCatalog。
+})();
+
+/* ===== pieces/92-demos-basics.js ===== */
+/* ============================================================================
+ * 92-demos-basics.js — 模块 0（零基础入门）的交互式 demo
+ *
+ * 这里只有一个 demo：code-trace（逐行执行追踪）。
+ *
+ * 为什么需要它：
+ *   零基础的读者最大的障碍是"一行代码到底发生了什么"。光看文字说明很容易
+ *   以为自己懂了，但那是识别，不是理解。这个 demo 把一小段程序拆成一行一行，
+ *   点一次"下一行"走一步，每一步都用中文说清**这一行做了什么、值变成了什么**。
+ *
+ * 它的数据全部写在下面 PROGRAMS 里（不是解析真实 Python）：
+ *   在浏览器里解析并执行任意 Python 是 Pyodide 的活，那是"代码练习"部分的职责；
+ *   这个 demo 的职责是**放慢速度讲清单步语义**，所以用预先写好的逐步说明更可靠，
+ *   也不会因为用户改错一个字符就抛异常。
+ * ==========================================================================*/
+(function () {
+  'use strict';
+  const CPL = window.CPL;
+  const dom = CPL.dom;
+  const demos = CPL.demos;
+
+  const PROGRAMS = [
+    {
+      id: 'first-output',
+      label: '第一个程序：让屏幕显示一行字',
+      code: [
+        '# 井号开头的这一行是注释，Python 完全忽略它',
+        'print("你好，世界")',
+        'print(2 + 3)',
+        'print("2 + 3")',
+      ],
+      steps: [
+        {
+          line: 0,
+          what: '注释行。Python 读到 # 就把这一行剩下的内容全部丢掉，不执行任何动作。它只写给读代码的人看。',
+          state: '还没有任何输出。',
+        },
+        {
+          line: 1,
+          what: '调用 print。print 是一个**函数**——一段有名字、可以被反复使用的代码。你给它一个值，它就把这个值显示到屏幕上。这里的值是 "你好，世界"，两边的双引号表示它是一个**字符串**，也就是一段文字。',
+          state: '第一行输出：你好，世界',
+          newOutput: '你好，世界',
+        },
+        {
+          line: 2,
+          what: 'print(2 + 3)：括号里不是文字，而是一个**算式**。Python 先把 2 + 3 算出来得到 5，再把 5 交给 print 显示。所以屏幕上出现的是 5，不是 "2 + 3"。',
+          state: '第二行输出：5',
+          newOutput: '5',
+        },
+        {
+          line: 3,
+          what: 'print("2 + 3")：这次括号里带着双引号，所以它是一个字符串，内容是三个符号 2、空格、+、空格、3。Python 不会去算它，直接把这段文字原样显示。对比上一行，这是**初学者最常混淆的地方**：有没有引号，决定了"算出来"还是"原样输出"。',
+          state: '第三行输出：2 + 3',
+          newOutput: '2 + 3',
+        },
+      ],
+      takeaway:
+        '同一个 print，加不加引号结果完全不同：有引号 → 原样输出这段文字；没引号 → 先算出来，再输出结果。程序就是"按顺序执行的一串指令"，从第一行开始，一行一行往下走。',
+    },
+    {
+      id: 'order-matters',
+      label: '执行顺序：为什么顺序不能颠倒',
+      code: [
+        'print("第一步")',
+        'print("第二步")',
+        'print("第三步")',
+      ],
+      steps: [
+        { line: 0, what: '执行第一行：显示 第一步。', state: '输出：第一步', newOutput: '第一步' },
+        {
+          line: 1,
+          what: '执行第二行：显示 第二步。注意——Python 是**从上往下**依次执行的，它不会跳着来。',
+          state: '输出：第一步、第二步',
+          newOutput: '第二步',
+        },
+        { line: 2, what: '执行第三行：显示 第三步。程序到这里结束。', state: '输出：第一步、第二步、第三步', newOutput: '第三步' },
+      ],
+      takeaway:
+        '把这三行的顺序换一下，屏幕上出现的顺序就跟着换。程序的"顺序"是有意义的信息，不是随便排的。',
+    },
+    {
+      id: 'syntax-error',
+      label: '出错会怎样：一个字符写错就停下',
+      code: [
+        'print("第一行没问题")',
+        'print("这一行少了右边的括号"',
+        'print("这一行永远不会执行")',
+      ],
+      steps: [
+        { line: 0, what: '执行第一行：显示 第一行没问题。', state: '输出：第一行没问题', newOutput: '第一行没问题' },
+        {
+          line: 1,
+          what: 'Python 准备执行这一行时，发现括号没有配对（左边有一个 (，右边没有 )）。它**在动手执行之前**就拒绝了这个文件，抛出 SyntaxError（语法错误）。"语法"就是这种"括号必须配对、引号必须成对"的书写规则。',
+          state: '报错：SyntaxError: \'(\' was never closed',
+          error: "SyntaxError: '(' was never closed",
+        },
+        {
+          line: 2,
+          what: '这一行不会被跳过——**整个文件都没能开始运行**。注意这和你可能以为的"执行到第二行才出错"不一样：语法错误是在"翻译"阶段就被发现的，所以第一行其实也没有真正执行。这是本 demo 唯一一处为了讲清楚而简化的地方：真实的 SyntaxError 会让你连第一行的输出都看不到。',
+          state: '整个程序都没有运行',
+        },
+      ],
+      takeaway:
+        '两类错误要分清：**语法错误（SyntaxError）**是书写规则不对，程序根本不会开始运行，Python 会告诉你第几行；**运行时错误**是书写没问题、但执行到某一步做不成（比如除以零），这时前面的输出已经产生了。读报错时先看最后一行，那里写着错误的类型和位置。',
+    },
+  ];
+
+  demos.register('code-trace', (host, params, api) => {
+    const pickId = (params && params.program) || PROGRAMS[0].id;
+    const program = PROGRAMS.find((p) => p.id === pickId) || PROGRAMS[0];
+
+    let step = -1; // -1 表示"还没开始"
+
+    const codeHost = dom.h('div', { class: 'cpl-trace__code' });
+    const outputHost = dom.h('pre', { class: 'cpl-trace__out', 'aria-live': 'polite' });
+    const whatHost = dom.h('p', { class: 'cpl-trace__what' });
+    const stateHost = dom.h('p', { class: 'cpl-trace__state' });
+    const progressHost = dom.h('div', { class: 'cpl-trace__progress' });
+
+    const lineEls = program.code.map((text, i) => {
+      const el = dom.h('div', { class: 'cpl-trace__line' });
+      el.append(
+        dom.h('span', { class: 'cpl-trace__no', text: String(i + 1) }),
+        dom.h('code', { text: text || '\u00a0' })
+      );
+      codeHost.append(el);
+      return el;
+    });
+
+    const prevBtn = dom.h('button', {
+      class: 'cpl-btn cpl-btn--sm',
+      type: 'button',
+      text: '上一步',
+      onclick: () => go(step - 1),
+    });
+    const nextBtn = dom.h('button', {
+      class: 'cpl-btn cpl-btn--sm cpl-btn--primary',
+      type: 'button',
+      text: '下一行',
+      onclick: () => go(step + 1),
+    });
+    const resetBtn = dom.h('button', {
+      class: 'cpl-btn cpl-btn--sm',
+      type: 'button',
+      text: '从头开始',
+      onclick: () => go(-1),
+    });
+
+    function render() {
+      // 高亮当前行
+      lineEls.forEach((el, i) => {
+        el.classList.toggle('is-current', i === step);
+        el.classList.toggle('is-done', i < step);
+      });
+
+      const visible = program.steps.slice(0, step + 1);
+      outputHost.textContent = visible.map((s) => s.newOutput).filter(Boolean).join('\n');
+
+      const cur = step >= 0 ? program.steps[step] : null;
+      if (!cur) {
+        whatHost.textContent = '点"下一行"，从第 1 行开始执行。';
+        stateHost.textContent = '';
+        stateHost.className = 'cpl-trace__state';
+      } else {
+        whatHost.textContent = cur.what;
+        stateHost.textContent = cur.state || '';
+        stateHost.className = 'cpl-trace__state' + (cur.error ? ' is-error' : '');
+        if (cur.error) {
+          // 报错时把输出区最后一行显示成报错样式（文本本身已包含在 steps 里）
+          outputHost.textContent = visible.map((s) => s.newOutput).filter(Boolean).join('\n');
+        }
+      }
+
+      progressHost.textContent = `第 ${Math.max(step + 1, 0)} / ${program.steps.length} 步`;
+      prevBtn.disabled = step <= -1;
+      nextBtn.disabled = step >= program.steps.length - 1;
+      if (step >= program.steps.length - 1) nextBtn.textContent = '已到最后一步';
+      else nextBtn.textContent = '下一行';
+    }
+
+    function go(next) {
+      step = Math.max(-1, Math.min(next, program.steps.length - 1));
+      render();
+    }
+
+    host.append(
+      dom.h('div', { class: 'cpl-trace__title', text: program.label }),
+      codeHost,
+      dom.h('div', { class: 'cpl-trace__controls' }, [prevBtn, nextBtn, resetBtn, progressHost]),
+      dom.h('div', { class: 'cpl-trace__panels' }, [
+        dom.h('div', { class: 'cpl-trace__panel' }, [
+          dom.h('h4', { text: '程序输出' }),
+          outputHost,
+        ]),
+        dom.h('div', { class: 'cpl-trace__panel' }, [
+          dom.h('h4', { text: '这一行做了什么' }),
+          whatHost,
+          stateHost,
+        ]),
+      ]),
+      dom.h('div', { class: 'cpl-demo__note', text: program.takeaway })
+    );
+
+    render();
+
+    // 让课程页的"重跑/清理"按钮能复位
+    if (api && typeof api.onReset === 'function') api.onReset(() => go(-1));
+  });
 })();
 
 /* ===== pieces/95-nav.js ===== */

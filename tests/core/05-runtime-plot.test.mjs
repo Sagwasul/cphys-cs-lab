@@ -348,6 +348,74 @@ test('MathML：未识别的命令退化显示，不抛错也不白屏', async ()
   expect.includes(out, '<math');
 });
 
+// ─────────────────────────────────────────────────────────────
+// 回归测试：2024 年修订过的一批渲染缺陷
+//
+// 背景：曾出现过"公式没渲染对"的反馈，逐条排查后发现是三类问题：
+//   ① 十个 LaTeX 命令根本没实现，被降级成字面文字（页面上显示 "underbrace"）；
+//   ② mo() 里 stretchy 的默认值判断写反，导致所有括号都不随分式长高；
+//   ③ 空格被渲染成可伸缩的 <mo>，被浏览器拉伸成大间隙，公式看起来散架。
+// 这三条都必须有测试守着，否则改渲染器时很容易再犯。
+// ─────────────────────────────────────────────────────────────
+test('MathML：课程里用到的命令都不得降级成字面文字（不得泄漏反斜杠命令）', async () => {
+  const CPL = await load();
+  const usedInLessons = [
+    '\\underbrace{a+b}_{\\text{和}}',
+    '\\overbrace{x+1}^{n}',
+    '\\mathcal{O}(N \\log N)',
+    '\\texttt{list.append}',
+    'a \\bmod b',
+    'x \\lesssim y',
+    'A \\sqcup B',
+    'a \\xrightarrow{f} b',
+    'A \\Longrightarrow B',
+    '\\mathbf{v}',
+  ];
+  for (const tex of usedInLessons) {
+    const inner = CPL.math
+      .toMathML(tex)
+      .replace(/^<math[^>]*>/, '')
+      .replace(/<\/math>$/, '');
+    const leak = /\\[a-zA-Z]{2,}/.exec(inner);
+    expect.ok(!leak, `${tex} 泄漏了命令 ${leak && leak[0]}：${inner.slice(0, 120)}`);
+  }
+});
+
+test('MathML：定界符必须可伸缩（括号要能随分式长高）', async () => {
+  const CPL = await load();
+  const out = CPL.math.toMathML('\\left( \\frac{a}{b} \\right)');
+  expect.includes(out, '<mo stretchy="true">(</mo>');
+  expect.includes(out, '<mo stretchy="true">)</mo>');
+});
+
+test('MathML：\\left...\\right 整体解析，下标挂在定界符上而不是整个表达式上', async () => {
+  const CPL = await load();
+  const out = CPL.math.toMathML('\\left\\| x \\right\\|_2');
+  // 期望结构：<msub> 包住整个定界符组，且 _2 出现在**右定界符之后**
+  expect.ok(/<msub>/.test(out), '应有 msub：' + out.slice(0, 160));
+  const lastBar = out.lastIndexOf('‖');
+  const subMark = out.indexOf('<mn>2</mn>');
+  expect.ok(lastBar > 0 && subMark > lastBar, '下标应出现在右定界符之后：' + out.slice(0, 220));
+  // 且不能是"整个表达式被 msup/msub 包住但右定界符在后面又出现一次"这种畸形
+  expect.equal((out.match(/<msub>/g) || []).length, 1, '只应有一个 msub：' + out.slice(0, 220));
+});
+
+test('MathML：\\| 与 \\Vert 都是双竖线（范数），| 才是单竖线', async () => {
+  const CPL = await load();
+  expect.includes(CPL.math.toMathML('\\|x\\|'), '‖');
+  expect.includes(CPL.math.toMathML('\\Vert x \\Vert'), '‖');
+  expect.includes(CPL.math.toMathML('\\left\\| x \\right\\|'), '‖');
+  // 单竖线场景不应变成双竖线
+  const abs = CPL.math.toMathML('\\left| x \\right|');
+  expect.ok(!abs.includes('‖'), '绝对值不该渲染成双竖线');
+});
+
+test('MathML：空格不得渲染成可伸缩的 mo（否则公式会被拉出大间隙）', async () => {
+  const CPL = await load();
+  const out = CPL.math.toMathML('a + b');
+  expect.ok(!/<mo stretchy="true"> <\/mo>/.test(out), '空格不该是 stretchy 的 mo：' + out);
+});
+
 test('MathML：纯文本近似（用于搜索与卡片预览）', async () => {
   const CPL = await load();
   expect.equal(CPL.math.plain('\\frac{1}{2}'), '1/2');

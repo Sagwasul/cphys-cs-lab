@@ -29,7 +29,7 @@ import { loadApp } from '../tests/helpers/load-app.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT = join(ROOT, 'content');
-const FOLDERS = ['labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
+const FOLDERS = ['basics', 'labs', 'fortran', 'projects', 'cs-core', 'meta', 'user'];
 
 const DEBUG = process.env.VERIFY_PYTHON_DEBUG === '1';
 

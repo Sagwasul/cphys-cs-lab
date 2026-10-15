@@ -1,8 +1,109 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-14T17:11:28.883Z",
-  "count": 28,
+  "generatedAt": "2026-10-15T05:23:48.380Z",
+  "count": 34,
   "lessons": [
+    {
+      "id": "basics-01-what-is-a-program",
+      "module": 0,
+      "week": 0.5,
+      "title": "程序是什么",
+      "subtitle": "从一行代码到屏幕上的结果：把每一步都看清楚",
+      "tags": [
+        "程序",
+        "print",
+        "执行顺序",
+        "字符串",
+        "注释"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-01-what-is-a-program.js",
+      "fingerprint": "011b3343",
+      "bytes": 15743
+    },
+    {
+      "id": "basics-02-variables",
+      "module": 0,
+      "week": 0.6,
+      "title": "变量与数据类型",
+      "subtitle": "给值起名字：把中间结果存下来反复用",
+      "tags": [
+        "变量",
+        "数据类型",
+        "赋值"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-02-variables.js",
+      "fingerprint": "b6a49dec",
+      "bytes": 31849
+    },
+    {
+      "id": "basics-03-conditions",
+      "module": 0,
+      "week": 0.7,
+      "title": "条件判断",
+      "subtitle": "让程序在不同情况下做不同的事",
+      "tags": [
+        "if",
+        "条件",
+        "布尔"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-03-conditions.js",
+      "fingerprint": "0b7c020f",
+      "bytes": 35080
+    },
+    {
+      "id": "basics-04-loops",
+      "module": 0,
+      "week": 0.8,
+      "title": "循环",
+      "subtitle": "让同一段代码重复执行，次数由你控制",
+      "tags": [
+        "for",
+        "while",
+        "循环",
+        "range"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-04-loops.js",
+      "fingerprint": "dba49c9b",
+      "bytes": 29562
+    },
+    {
+      "id": "basics-05-functions",
+      "module": 0,
+      "week": 0.85,
+      "title": "函数",
+      "subtitle": "把一段代码打包成有名字、可反复调用的东西",
+      "tags": [
+        "函数",
+        "参数",
+        "返回值",
+        "作用域"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-05-functions.js",
+      "fingerprint": "22c255f6",
+      "bytes": 34745
+    },
+    {
+      "id": "basics-06-lists",
+      "module": 0,
+      "week": 0.9,
+      "title": "列表与下标",
+      "subtitle": "一格一格地装数据：编号从 0 开始，这件事要记牢",
+      "tags": [
+        "列表",
+        "下标",
+        "索引",
+        "切片"
+      ],
+      "folder": "basics",
+      "file": "content/basics/basics-06-lists.js",
+      "fingerprint": "8e88fa63",
+      "bytes": 44248
+    },
     {
       "id": "appendix-a-concept-cards",
       "module": 6,
