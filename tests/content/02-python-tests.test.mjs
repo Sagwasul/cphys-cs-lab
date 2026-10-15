@@ -339,25 +339,42 @@ test('起始代码（starter）应当无法通过复杂度类测试（证明测�
   if (!PYTHON) return;
   // 只挑"名字里含复杂度/性能/量级"的计时类测试：starter 通常是暴力解，
   // 如果这类测试连 starter 都能通过，说明阈值太松、测试形同虚设。
-  const checked = [];
-  const t0All = Date.now();
+  //
+  // ⚠ 总预算必须有上界。这类检查要靠"暴力解超时"来判定，而超时是按秒计的，
+  //   在 CI 上累积起来很容易把整套测试拖到十几分钟（曾经发生：这一项独占 91 秒）。
+  //   因此 CI 上只跑一个**确定性挑选**的代表子集（按课程 id 排序取前 3 条），
+  //   本机跑全部。子集是确定的（不是随机的），所以结论可复现、不会有随机波动。
+  const all = [];
   for (const lesson of lessons) {
     const ex = lesson.exercise;
     if (!ex || !ex.starter) continue;
     for (const t of lesson.tests || []) {
       if ((t.kind || 'python') !== 'python') continue;
       if (!/复杂度|性能|量级|规模翻倍|线性/.test(t.name)) continue;
-      const t0 = Date.now();
-      // starter 给 1.2 倍余量：参考解与暴力解在临界点上不应因为几十毫秒的抖动
-      // 得到相反结论；但余量必须小，否则"慢一点的暴力解"会被误判为通过。
-      const res = runTest('python', t, ex.starter, { grace: 1.2 });
-      const ms = Date.now() - t0;
-      // 单条超过 10 秒就打印出来：这一项在慢机器上可能吃掉整个测试预算
-      if (ms > 10000) {
-        console.log(`#   starter 慢用例：${lesson.id} / ${t.name} — ${(ms / 1000).toFixed(1)}s（${res.ok ? '通过' : '被拦下'}）`);
-      }
-      checked.push({ lesson: lesson.id, name: t.name, starterPassed: res.ok, message: res.message, ms });
+      all.push({ lesson: lesson.id, test: t, starter: ex.starter });
     }
+  }
+  all.sort((a, b) => a.lesson.localeCompare(b.lesson));
+  const onCI = Boolean(process.env.CI);
+  const picked = onCI ? all.slice(0, 3) : all;
+  if (onCI && all.length > picked.length) {
+    console.log(
+      `# CI 环境：starter 鉴别力检查只跑 ${picked.length}/${all.length} 条代表用例（其余在本机由 npm test 覆盖）`
+    );
+  }
+
+  const checked = [];
+  const t0All = Date.now();
+  for (const item of picked) {
+    const t0 = Date.now();
+    // starter 给 1.2 倍余量：参考解与暴力解在临界点上不应因为几十毫秒的抖动
+    // 得到相反结论；但余量必须小，否则"慢一点的暴力解"会被误判为通过。
+    const res = runTest('python', item.test, item.starter, { grace: 1.2 });
+    const ms = Date.now() - t0;
+    if (ms > 10000) {
+      console.log(`#   starter 慢用例：${item.lesson} / ${item.test.name} — ${(ms / 1000).toFixed(1)}s（${res.ok ? '通过' : '被拦下'}）`);
+    }
+    checked.push({ lesson: item.lesson, name: item.test.name, starterPassed: res.ok, message: res.message, ms });
   }
   console.log(
     `# starter 鉴别力检查：${checked.length} 条 · 合计 ${((Date.now() - t0All) / 1000).toFixed(1)}s · 最慢 ${Math.max(0, ...checked.map((c) => c.ms))}ms`

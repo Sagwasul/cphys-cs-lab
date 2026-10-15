@@ -30,7 +30,21 @@ jobs:
         run: npm run build
 
       - name: 测试
-        run: npm test
+        # 失败时把最后 120 行重新打印一次并**显式报错**。
+        # 为什么：GitHub Actions 的失败摘要只显示"这一步失败了"，
+        # 具体的失败清单往往被折叠在很长的日志中间，排查时很难找。
+        # 这里把结论区（含环境横幅、失败清单）重新打到最后，一眼可见。
+        run: |
+          set +e
+          npm test 2>&1 | tee /tmp/test-output.txt
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo ""
+            echo "======================== 失败详情（日志末尾 120 行） ========================"
+            tail -n 120 /tmp/test-output.txt
+            echo "=========================================================================="
+          fi
+          exit "$status"
 
       - name: Python 语义验证（用真实 CPython 跑每课的参考解与起始代码）
         # 这一步是"教学辅助"性质：它验证的是课程内容里的 python 测试写得对不对。

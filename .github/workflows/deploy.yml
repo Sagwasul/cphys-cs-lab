@@ -40,7 +40,18 @@ jobs:
         run: npm run build
 
       - name: 运行全部测试（含大纲完整性与安全测试）
-        run: npm test
+        # 同 ci.yml：失败时把结论区重新打印到日志末尾，避免失败清单被埋在中间。
+        run: |
+          set +e
+          npm test 2>&1 | tee /tmp/test-output.txt
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            echo ""
+            echo "======================== 失败详情（日志末尾 120 行） ========================"
+            tail -n 120 /tmp/test-output.txt
+            echo "=========================================================================="
+          fi
+          exit "$status"
 
       - name: 校验 manifest 与 content 同步
         run: node scripts/gen-manifest.mjs --check
