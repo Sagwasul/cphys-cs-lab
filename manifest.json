@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generatedAt": "2026-10-15T05:23:48.380Z",
+  "generatedAt": "2026-10-15T06:14:58.188Z",
   "count": 34,
   "lessons": [
     {
@@ -153,8 +153,8 @@
       ],
       "folder": "labs",
       "file": "content/labs/lab-01-complexity-memory.js",
-      "fingerprint": "d83939fc",
-      "bytes": 19886
+      "fingerprint": "0d19dee9",
+      "bytes": 20480
     },
     {
       "id": "lab-05-python-numpy",
@@ -431,8 +431,8 @@
       ],
       "folder": "cs-core",
       "file": "content/cs-core/week-11-complexity-array-hash.js",
-      "fingerprint": "452660ad",
-      "bytes": 16865
+      "fingerprint": "6f50fca0",
+      "bytes": 16789
     },
     {
       "id": "week-12-linked-list-stack-queue",
@@ -448,8 +448,8 @@
       ],
       "folder": "cs-core",
       "file": "content/cs-core/week-12-linked-list-stack-queue.js",
-      "fingerprint": "aed0377f",
-      "bytes": 26313
+      "fingerprint": "1d803a61",
+      "bytes": 26495
     },
     {
       "id": "week-13-tree-heap-trie",

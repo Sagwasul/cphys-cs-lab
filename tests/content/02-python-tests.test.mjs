@@ -216,17 +216,65 @@ function runPython(code, timeoutMs = 30000) {
   return { ok: true, stdout: capOut, stderr: capErr };
 }
 
-/** 取断言的失败标记；成功时可能还有 __CPL_FAIL__ 之外的内容。 */
-function runTest(lang, testDef, code) {
+/**
+ * 取断言的失败标记；成功时可能还有 __CPL_FAIL__ 之外的内容。
+ *
+ * 超时策略：**尊重测试自己声明的 timeoutMs**（课程作者按浏览器 12 秒硬超时来定），
+ * 只做很窄的兜底，避免被错误配置拖死：
+ *   · 下限 3 秒 —— 防止有人把 timeoutMs 写成 0/负数导致测试毫无预算
+ *   · 上限 30 秒 —— 防止某条测试把整个 CI 预算吃光
+ *   · grace 倍率 —— 检查 starter 时给一点点余量，让"到底会不会超时"更公平；
+ *     但余量必须小，否则暴力解只要比参考解稍慢就能蒙混过关。
+ *
+ * 早期版本把下限硬写成 30 秒，直接忽略了课程声明的 timeoutMs=8000，
+ * 结果三条暴力解各跑满 30 秒，光这一项就吃掉 91 秒。
+ */
+function runTest(lang, testDef, code, opts = {}) {
+  const declared = Number(testDef && testDef.timeoutMs) || 8000;
+  const grace = Number(opts.grace) || 1;
+  const budget = Math.min(Math.max(Math.round(declared * grace), 3000), 30000);
   const wrapped = wrapPythonTest(testDef.assert, code);
-  return runPython(buildRunCode(wrapped));
+  return runPython(buildRunCode(wrapped), budget);
 }
 
 const lessons = await loadAllLessons();
 
+/**
+ * 环境诊断横幅。
+ *
+ * 为什么需要它：这套检查的结果**依赖运行环境**（python 版本、第三方包是否装了、
+ * runner 快不快）。此前 CI 报"第 5 步失败"时，日志里只有测试名，看不出是哪个
+ * 环境因素导致的，排查只能靠猜。把环境信息在开头一次性打出来，
+ * 之后任何失败都能立刻对上号。
+ */
+function diagnosticsBanner() {
+  const lines = [];
+  lines.push(`# 环境：node ${process.version} · ${process.platform} · python ${PY.exe || '（无）'}`);
+  if (process.env.CI) {
+    lines.push(`# CI：${process.env.CI} · RUNNER_OS=${process.env.RUNNER_OS || '?'} · RUNNER_ARCH=${process.env.RUNNER_ARCH || '?'}`);
+  }
+  if (PYTHON) {
+    const v = spawnSync(PYTHON, ['-c', 'import sys; print(".".join(map(str, sys.version_info[:3])))'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      encoding: 'utf8',
+    });
+    lines.push(`# python 版本：${String(v.stdout || '').trim() || '未知'}`);
+  }
+  // 课程里有用到第三方包的测试；缺包会让"参考解未通过"，但那是环境问题不是内容问题，
+  // 必须一眼能区分，否则会去改根本没坏的课程。
+  if (PYTHON) {
+    for (const mod of ['numpy']) {
+      const r = spawnSync(PYTHON, ['-c', `import ${mod}`], { stdio: ['ignore', 'ignore', 'ignore'] });
+      lines.push(`# 第三方包 ${mod}：${r.status === 0 ? '可用' : '缺失（依赖它的课程测试会失败，属环境问题）'}`);
+    }
+  }
+  console.log(lines.join('\n'));
+}
+
 test('本机有 python 可用于验证 python 测试的语义（不可用时显式说明原因）', () => {
   if (PYTHON) {
     expect.ok(PYTHON, '应能找到 python');
+    diagnosticsBanner();
     return;
   }
   // 明确打印跳过原因。**不要**让这一整套检查静默变绿：
@@ -274,8 +322,17 @@ test('全部课程的参考解（solution）都能通过它自己的 python 自�
     }
   }
 
+  const detail = problems.map((p, i) => `    ${i + 1}. ${p}`).join('\n');
+  // 先独立打印一份完整清单：CI 日志里断言消息可能被截断，
+  // 而这份清单是定位问题唯一的依据，必须在最后单独出现一次。
+  if (problems.length) {
+    console.log('');
+    console.log(`# ✗ 参考解失败清单（共 ${problems.length} 条，环境：见上方横幅）`);
+    console.log(detail);
+    console.log('');
+  }
   expect.ok(ran > 0, '一条 python 测试都没跑到，说明课程内容缺失');
-  expect.equal(problems.length, 0, `共跑了 ${ran} 条 python 测试，以下参考解未通过：\n  - ${problems.join('\n  - ')}`);
+  expect.equal(problems.length, 0, `共跑了 ${ran} 条 python 测试，以下参考解未通过：\n${detail}`);
 });
 
 test('起始代码（starter）应当无法通过复杂度类测试（证明测试真的有鉴别力）', () => {
@@ -283,16 +340,28 @@ test('起始代码（starter）应当无法通过复杂度类测试（证明测�
   // 只挑"名字里含复杂度/性能/量级"的计时类测试：starter 通常是暴力解，
   // 如果这类测试连 starter 都能通过，说明阈值太松、测试形同虚设。
   const checked = [];
+  const t0All = Date.now();
   for (const lesson of lessons) {
     const ex = lesson.exercise;
     if (!ex || !ex.starter) continue;
     for (const t of lesson.tests || []) {
       if ((t.kind || 'python') !== 'python') continue;
       if (!/复杂度|性能|量级|规模翻倍|线性/.test(t.name)) continue;
-      const res = runTest('python', t, ex.starter);
-      checked.push({ lesson: lesson.id, name: t.name, starterPassed: res.ok, message: res.message });
+      const t0 = Date.now();
+      // starter 给 1.2 倍余量：参考解与暴力解在临界点上不应因为几十毫秒的抖动
+      // 得到相反结论；但余量必须小，否则"慢一点的暴力解"会被误判为通过。
+      const res = runTest('python', t, ex.starter, { grace: 1.2 });
+      const ms = Date.now() - t0;
+      // 单条超过 10 秒就打印出来：这一项在慢机器上可能吃掉整个测试预算
+      if (ms > 10000) {
+        console.log(`#   starter 慢用例：${lesson.id} / ${t.name} — ${(ms / 1000).toFixed(1)}s（${res.ok ? '通过' : '被拦下'}）`);
+      }
+      checked.push({ lesson: lesson.id, name: t.name, starterPassed: res.ok, message: res.message, ms });
     }
   }
+  console.log(
+    `# starter 鉴别力检查：${checked.length} 条 · 合计 ${((Date.now() - t0All) / 1000).toFixed(1)}s · 最慢 ${Math.max(0, ...checked.map((c) => c.ms))}ms`
+  );
   if (!checked.length) {
     console.log('# 没有找到计时类测试，跳过鉴别力检查');
     return;
@@ -434,6 +503,9 @@ function stripCommentsAndStrings(src) {
 test('python 测试的执行时间在可接受范围内（防止学生等太久）', () => {
   if (!PYTHON) return;
   const slow = [];
+  const timings = [];
+  let worst = { ms: 0, who: '（无）' };
+  const t0All = Date.now();
   for (const lesson of lessons) {
     const ex = lesson.exercise;
     if (!ex || !ex.solution) continue;
@@ -442,11 +514,28 @@ test('python 测试的执行时间在可接受范围内（防止学生等太久�
       const t0 = Date.now();
       runTest('python', t, ex.solution);
       const ms = Date.now() - t0;
-      // 12 秒是浏览器里的硬超时；这里要求参考解在 1/3 以内完成，留足余量
-      if (ms > 4000) slow.push(`${lesson.id} / ${t.name}: ${ms} ms`);
+      timings.push(ms);
+      if (ms > worst.ms) worst = { ms, who: `${lesson.id} / ${t.name}` };
+      // 12 秒是浏览器里的硬超时。这里要求参考解远快于它。
+      // 阈值放到 6 秒：CI runner 上每个用例都要新建一个 python 进程，
+      // 进程启动本身就要几十到上百毫秒，4 秒阈值曾在 CI 上误报。
+      // 真正要拦的是"学生要等十几秒"的用例，6 秒足够严格。
+      if (ms > 6000) slow.push(`${lesson.id} / ${t.name}: ${ms} ms`);
     }
   }
-  expect.equal(slow.length, 0, '以下测试太慢（浏览器里可能超时）：\n  ' + slow.join('\n  '));
+  const totalMs = Date.now() - t0All;
+  const avg = timings.length ? Math.round(timings.reduce((a, b) => a + b, 0) / timings.length) : 0;
+  const sorted = [...timings].sort((a, b) => b - a);
+  // 无论成败都打印概要：CI 上失败时这段信息是唯一的线索
+  console.log(
+    `# python 语义验证耗时：${timings.length} 条用例 · 合计 ${(totalMs / 1000).toFixed(1)}s · 平均 ${avg}ms · 最慢 ${worst.ms}ms（${worst.who}）`
+  );
+  console.log(`#   最慢 5 条：${sorted.slice(0, 5).join('ms, ')}ms`);
+  expect.equal(
+    slow.length,
+    0,
+    '以下测试太慢（浏览器里 12 秒硬超时，参考解就逼近会让学生体验很差）：\n  ' + slow.join('\n  ')
+  );
 });
 
 test('exercise 语言与测试类型匹配（fortran/cpp 的练习只能用静态测试）', () => {

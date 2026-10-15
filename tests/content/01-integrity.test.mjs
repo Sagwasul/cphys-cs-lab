@@ -141,13 +141,25 @@ test('每课的自动测试至少 1 个，且结构合法', async () => {
 test('python 测试的 assert 里必须真的有 assert（否则是空测试）', async () => {
   const { lessons } = await loadAllLessons();
   const problems = [];
+  // 先剥掉注释与字符串再检测：否则"# 刻意不用 time.perf_counter"这种
+  // 说明性文字会被当成真的在计时（这个误报真的发生过）。
+  // 与 tests/content/02-python-tests 的 stripCommentsAndStrings 是同一套思路。
+  const stripPy = (src) =>
+    String(src)
+      .replace(/(^|[^\\])#.*$/gm, '$1')
+      .replace(/'''[\s\S]*?'''/g, "''")
+      .replace(/"""[\s\S]*?"""/g, '""')
+      .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+      .replace(/"(?:[^"\\\n]|\\.)*"/g, '""');
+
   for (const l of lessons) {
     for (const t of l.tests || []) {
       if ((t.kind || 'python') !== 'python') continue;
       const src = String(t.assert || '');
       if (!/\bassert\b/.test(src)) problems.push(`${l.id} / ${t.name}: assert 里没有 assert 语句`);
-      // 复杂度类测试必须有"规模翻倍"的量级断言，而不是绝对耗时
-      if (/perf_counter|time\.time/.test(src) && !/ratio|倍数|<\s*[0-9.]+/.test(src)) {
+      // 复杂度类测试必须有"规模翻倍"或"超时"的量级判据，而不是只看绝对耗时
+      const code = stripPy(src);
+      if (/(time\.perf_counter|time\.time)\s*\(/.test(code) && !/ratio|倍数|<\s*[0-9.]+/.test(code)) {
         problems.push(`${l.id} / ${t.name}: 用了计时但没有量级断言（跨机器会失败）`);
       }
     }
