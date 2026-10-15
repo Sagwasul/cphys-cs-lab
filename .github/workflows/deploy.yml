@@ -47,6 +47,12 @@ jobs:
           which python3
           python3 --version
 
+      # 课程测试依赖 numpy（lab-05 与 user-example 的参考解都用它）
+      - name: 安装 numpy（课程测试依赖）
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check numpy
+          python3 -c "import numpy; print('numpy', numpy.__version__)"
+
       - name: 构建站点（拼接 pieces + 生成 manifest + 密钥扫描）
         run: npm run build
 

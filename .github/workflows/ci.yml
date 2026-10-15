@@ -41,6 +41,17 @@ jobs:
           python3 --version
           python3 -c "import sys; assert sys.version_info >= (3, 8), sys.version"
 
+      # ── 安装课程内容依赖的第三方包 ──────────────────────────────
+      # 为什么必须装：lab-05-python-numpy 整节课讲的就是 NumPy，
+      # user-example-lesson 也用它；它们的参考解在浏览器里走 Pyodide 的
+      # numpy wheel，所以在 CI 上也必须有 numpy 才能验证。
+      # 不装的话语义验证会以 ModuleNotFoundError 失败——那是环境缺陷，
+      # 不该被当成"课程内容写错了"。
+      - name: 安装 numpy（课程测试依赖）
+        run: |
+          python3 -m pip install --quiet --disable-pip-version-check numpy
+          python3 -c "import numpy; print('numpy', numpy.__version__)"
+
       - name: 构建（含内容契约与密钥扫描）
         run: npm run build
 

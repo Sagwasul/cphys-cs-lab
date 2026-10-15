@@ -291,6 +291,17 @@ function diagnosticsBanner() {
   console.log(lines.join('\n'));
 }
 
+/**
+ * 课程测试依赖的第三方包。
+ *
+ * 为什么单独列出来：这些包在浏览器里由 Pyodide 提供（平台加载 numpy wheel），
+ * 在本机/CI 上必须显式安装。缺了它们，语义验证会以 ModuleNotFoundError 失败——
+ * 那是**环境缺陷**，不是"课程内容写错了"。这两者必须能一眼区分，
+ * 否则排查方向会被带偏（真实发生过：CI 上一片 "参考解未通过"，
+ * 实际只是没装 numpy）。
+ */
+const REQUIRED_PY_MODULES = ['numpy'];
+
 test('本机有 python 可用于验证 python 测试的语义（不可用时显式说明原因）', () => {
   if (PYTHON) {
     expect.ok(PYTHON, '应能找到 python');
@@ -360,17 +371,31 @@ test('全部课程的参考解（solution）都能通过它自己的 python 自�
     }
   }
 
+  // 缺失的第三方依赖：单独归类，避免与"课程内容写错"混在一起。
+  const missingDeps = new Set();
+  for (const p of problems) {
+    for (const mod of REQUIRED_PY_MODULES) {
+      if (new RegExp(`No module named '${mod}'`).test(p)) missingDeps.add(mod);
+    }
+  }
+  const envHint = missingDeps.size
+    ? `\n# ⚠ 注意：其中有 ${missingDeps.size} 个第三方包缺失（${[...missingDeps].join(', ')}）。\n` +
+      '#   这是**环境缺陷**，不是课程内容错误。修法：pip install ' +
+      [...missingDeps].join(' ') +
+      '（CI 上应由 workflow 的安装步骤负责）。'
+    : '';
+
   const detail = problems.map((p, i) => `    ${i + 1}. ${p}`).join('\n');
   // 先独立打印一份完整清单：CI 日志里断言消息可能被截断，
   // 而这份清单是定位问题唯一的依据，必须在最后单独出现一次。
   if (problems.length) {
     console.log('');
-    console.log(`# ✗ 参考解失败清单（共 ${problems.length} 条，环境：见上方横幅）`);
+    console.log(`# ✗ 参考解失败清单（共 ${problems.length} 条，环境：见上方横幅）${envHint}`);
     console.log(detail);
     console.log('');
   }
   expect.ok(ran > 0, '一条 python 测试都没跑到，说明课程内容缺失');
-  expect.equal(problems.length, 0, `共跑了 ${ran} 条 python 测试，以下参考解未通过：\n${detail}`);
+  expect.equal(problems.length, 0, `共跑了 ${ran} 条 python 测试，以下参考解未通过：${envHint}\n${detail}`);
 });
 
 test('起始代码（starter）应当无法通过复杂度类测试（证明测试真的有鉴别力）', () => {
