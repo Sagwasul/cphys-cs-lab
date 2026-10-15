@@ -26,6 +26,21 @@ jobs:
         with:
           node-version: '20'
 
+      # ── 必须显式装 Python ────────────────────────────────────────
+      # 为什么：这套测试要**真的执行**每节课的 python 自动测试（111 条），
+      # 用来证明"参考解能通过自己的测试"。之前没有这一步，CI 上找不到解释器，
+      # 整套 Python 验证被静默跳过 —— 日志里只有一行不起眼的提示，
+      # 而 CI 却连续 4 次报红却让人查不出原因。现在先装好、再验证。
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 确认 python3 可用（缺了就立刻失败，不允许静默跳过）
+        run: |
+          which python3
+          python3 --version
+          python3 -c "import sys; assert sys.version_info >= (3, 8), sys.version"
+
       - name: 构建（含内容契约与密钥扫描）
         run: npm run build
 

@@ -29,27 +29,39 @@ const FOLDERS = ['basics', 'labs', 'fortran', 'projects', 'cs-core', 'meta', 'us
 
 /**
  * 找一个可用的 python 解释器。
- * 返回 { exe, runnable, reason }：
- *   · 找到且能执行 → runnable=true
- *   · 磁盘上有但沙箱禁止 spawn → runnable=false，reason 说明原因
- *     （这种情况下语义验证会被跳过，但必须**显式说明**，不能静默绿）
+ * 返回 { exe, runnable, blocked, reason }：
+ *   · 找到且能执行        → runnable=true
+ *   · 磁盘上有但沙箱禁 spawn → runnable=false, blocked=true（这是"环境不允许"，可跳过）
+ *   · 哪都没有            → runnable=false, blocked=false（这是"配置漏了"，必须硬失败）
+ *
+ * ⚠ 为什么必须区分后两种：
+ *   在受限沙箱里跳过是合理的（禁止子进程管道通信，本项目的代码没问题）。
+ *   但在 CI 上"找不到 python"是**配置缺陷**——ubuntu-latest 自带 python3，
+ *   找不到只能说明 PATH 或安装步骤有问题。如果这时也静默跳过，
+ *   整套 Python 语义验证就形同虚设，而日志上只会显示一行很不起眼的提示。
+ *   真实发生过：CI 连续 4 次"红"，而 Python 验证一次都没跑过。
  */
 function findPython() {
   const candidates = ['python', 'python3', 'py'];
+  let blocked = null;
   for (const exe of candidates) {
     const r = spawnSync(exe, ['-c', 'print(1)'], { stdio: ['ignore', 'pipe', 'ignore'] });
-    if (!r.error && r.status === 0) return { exe, runnable: true, reason: '' };
+    if (!r.error && r.status === 0) return { exe, runnable: true, blocked: false, reason: '' };
     if (r.error && /EPERM|EACCES/i.test(String(r.error.code || r.error.message))) {
       // 沙箱禁止创建管道 → spawnSync 永远失败，即使解释器存在
       const found = findOnDisk(candidates);
-      return {
+      blocked = {
         exe: found || exe,
         runnable: false,
+        blocked: true,
         reason: `沙箱禁止子进程管道通信（${r.error.code}）${found ? `，但磁盘上存在 ${found}` : ''}`,
       };
+      // 继续试其它候选：万一某个能跑（不同 shim 行为可能不同）
+      continue;
     }
   }
-  return { exe: null, runnable: false, reason: 'PATH 上找不到 python' };
+  if (blocked) return blocked;
+  return { exe: null, runnable: false, blocked: false, reason: 'PATH 上找不到 python（python/python3/py 都不存在）' };
 }
 
 /** 在 PATH 上找可执行文件（不 spawn）。 */
@@ -74,6 +86,14 @@ function findOnDisk(candidates) {
 
 const PY = findPython();
 const PYTHON = PY.runnable ? PY.exe : null;
+/**
+ * 是否"必须"能验证 Python。
+ *   · CI 上：必须（runner 自带 python3，找不到就是配置缺陷）
+ *   · 显式 REQUIRE_PYTHON=1：必须（本地想强制验证时用）
+ * 这时若找不到解释器，测试会**失败**而不是跳过——一个静默跳过的检查
+ * 比没有检查更危险，因为它会让人以为已经验证过了。
+ */
+const PYTHON_REQUIRED = Boolean(process.env.CI) || process.env.REQUIRE_PYTHON === '1';
 
 function collectLessonFiles() {
   const out = [];
@@ -277,12 +297,30 @@ test('本机有 python 可用于验证 python 测试的语义（不可用时显�
     diagnosticsBanner();
     return;
   }
-  // 明确打印跳过原因。**不要**让这一整套检查静默变绿：
-  // "参考解全部通过"如果在没有解释器时也显示通过，那是自欺。
-  console.log('# ⚠ 跳过 python 语义验证：' + PY.reason);
-  console.log(`#   找到的解释器：${PY.exe || '（无）'}`);
-  console.log('#   在正常开发机与 GitHub Actions（ubuntu-latest 自带 python3）上，这一整套检查会真正执行。');
-  console.log('#   想在本机强制验证：直接运行 `python -c "..."` 或 `npm test`（不经受限沙箱）。');
+
+  // 必须验证的环境（CI、或显式 REQUIRE_PYTHON=1）里，找不到解释器就是**配置缺陷**。
+  // 这里必须先判断，不能被下面的 blocked 分支吞掉：如果 CI 上某个 shim 让 spawn
+  // 报出权限类错误，blocked 会变成 true，于是整套验证被静默跳过——
+  // 那正是之前连续 4 次找不出原因的原因。
+  if (PYTHON_REQUIRED) {
+    console.log('# ✗ 本环境要求执行 python 语义验证，但找不到可用的解释器。');
+    console.log('#   ' + (PY.reason || '未知原因'));
+    console.log('#   修法：安装 Python 3.10+；CI 上应有 actions/setup-python 或 runner 自带 python3。');
+    expect.ok(false, '缺少 python 解释器：' + (PY.reason || '未知原因'));
+    return;
+  }
+
+  // 非必须环境：沙箱禁止子进程是"环境不允许"，跳过是合理的，但必须说清楚。
+  if (PY.blocked) {
+    console.log('# ⚠ 跳过 python 语义验证：' + PY.reason);
+    console.log(`#   找到的解释器：${PY.exe || '（无）'}`);
+    console.log('#   在正常开发机与 GitHub Actions（ubuntu-latest 自带 python3）上，这一整套检查会真正执行。');
+    console.log('#   想在本机强制验证：设 REQUIRE_PYTHON=1 并脱离受限沙箱运行 npm test。');
+    return;
+  }
+
+  console.log('# ✗ 找不到 python 解释器（python / python3 / py 都不存在）。');
+  expect.ok(false, '找不到 python 解释器：' + PY.reason);
 });
 
 test('harness 自检：这套检测真的能发现失败（否则下面所有结论都不可信）', () => {
